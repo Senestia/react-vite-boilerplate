@@ -71,20 +71,25 @@ react-vite-boilerplate/
 ## 🏗️ Architecture Principles
 
 ### File-based Routing
+
 Following [React Router conventions](https://reactrouter.com/how-to/file-route-conventions):
+
 - `_index.tsx` - Index routes
 - `_layout.tsx` - Layout routes
 - `_components/` - Route-specific components
 - Nested routing through folder structure
 
 ### Atomic Design System
+
 Components are organized using atomic design methodology:
+
 - **Atoms**: Basic HTML elements (buttons, inputs, labels)
 - **Molecules**: Simple component combinations (search box, form field)
 - **Organisms**: Complex UI components (header, footer, forms)
 - **Templates**: Page wireframes and layouts
 
 ### Styling Philosophy
+
 - **Utility-First**: Tailwind CSS for rapid styling
 - **Component-Scoped**: CSS modules for complex components
 - **Theme System**: CSS variables for consistent theming
@@ -93,23 +98,27 @@ Components are organized using atomic design methodology:
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - npm, yarn, or pnpm
 
 ### Installation
 
 1. **Clone or use this template**
+
    ```bash
    git clone <repository-url>
    cd react-vite-boilerplate
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Start development server**
+
    ```bash
    npm run dev
    ```
@@ -127,28 +136,28 @@ Components are organized using atomic design methodology:
 ## 🎨 Styling Guidelines
 
 ### Tailwind CSS v4
+
 This project uses the latest Tailwind CSS with enhanced features:
 
 ```tsx
 // Example component with Tailwind classes
-export function Button({ children, variant = 'primary' }) {
+export function Button({ children, variant = "primary" }) {
   return (
-    <button 
-      className={`
-        px-4 py-2 rounded-lg font-medium transition-colors
-        ${variant === 'primary' 
-          ? 'bg-blue-600 text-white hover:bg-blue-700' 
-          : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-        }
-      `}
+    <button
+      className={`rounded-lg px-4 py-2 font-medium transition-colors ${
+        variant === "primary"
+          ? "bg-blue-600 text-white hover:bg-blue-700"
+          : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+      } `}
     >
       {children}
     </button>
-  );
+  )
 }
 ```
 
 ### Theme System
+
 Dark/light theme support with CSS variables:
 
 ```css
@@ -170,25 +179,31 @@ Dark/light theme support with CSS variables:
 ## 🗂️ File Conventions
 
 ### Route Files
+
 - Use lowercase with hyphens: `user-profile.tsx`
 - Prefix with underscore for special routes: `_layout.tsx`
 - Group related routes in folders
 
 ### Component Files
+
 - Use PascalCase: `UserProfile.tsx`
 - Export as named export matching filename
 - Include types in same file when simple
 
 ### Import Paths
+
 Use the configured alias for clean imports:
+
 ```tsx
-import { Button } from '~/components/atoms/Button';
-import { useAuth } from '~/hooks/useAuth';
-import { formatDate } from '~/utils/date';
+import { Button } from "~/components/atoms/Button"
+import { useAuth } from "~/hooks/useAuth"
+import { formatDate } from "~/utils/date"
 ```
 
 ### Platform Support
+
 Deploy to any platform supporting Node.js:
+
 - **Vercel** - Zero-config deployment
 - **Netlify** - JAMstack deployment
 - **Railway** - Full-stack deployment
@@ -197,7 +212,9 @@ Deploy to any platform supporting Node.js:
 - **Digital Ocean** - VPS deployment
 
 ### DIY Deployment
+
 For custom deployment, ensure:
+
 1. Node.js 18+ runtime
 2. Serve the `build/` directory
 3. Set environment variables as needed
