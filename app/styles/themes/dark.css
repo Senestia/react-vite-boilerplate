@@ -1,0 +1,7 @@
+/* Dark theme variables and styles */
+.dark {
+  /* Dark theme specific overrides */
+  --bg-primary: #1a1a1a;
+  --text-primary: #ffffff;
+  --border-color: #374151;
+} 

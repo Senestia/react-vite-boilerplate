@@ -2,9 +2,48 @@
 globs: app/*
 alwaysApply: false
 ---
-This project uses Vite, React Router 7, Tailwind CSS, TypeScript, and Ant-D as a tech stack.
+This project uses Vite, React Router 7, Tailwind CSS v4 and TypeScript tech stack.
 
 Styling should be follow the tailwind CSS
 
-Components need breakdown to atomicdesign use context7 and Must using Ant-d ref.https://ant.design/
-NextJS must use parallel-routes ref.https://nextjs.org/docs/app/api-reference/file-conventions/parallel-routes
+Components need breakdown to atomicdesign use context7
+
+react router folder convention  https://reactrouter.com/how-to/file-route-conventions
+
+project structure 
+,,,
+my-react-app/
+├── public/                      # 🌐 Static assets
+│   ├── images/
+│   ├── icons/
+│   ├── fonts/
+│   └── locales/
+├── app/                         # 🎯 All application code
+│   ├── root.tsx                # Root component
+│   ├── routes.ts               # Route configuration
+│   ├── routes/                 # 📂 File-based routes
+│   │   ├── _index.tsx          # Home route
+│   │   ├── _layout.tsx         # Root layout
+│   │   └── products/
+│   │       ├── _index.tsx 
+│   │       ├── _components/
+│   │       └── _hook/
+│   ├── components/             # 🌐 Shared components
+│   ├── hooks/                  # 🎣 Global hooks
+│   ├── utils/
+│   ├── lib/
+│   ├── assets/
+│   ├── types/
+│   └── styles/ 
+│       ├── app.css 
+│       ├── components.css
+│       ├── utilities.css 
+│       └── themes/
+│           ├── light.css
+│           ├── dark.css
+│           └── variables.css
+├── main.tsx
+├── tailwind.config.ts
+├── vite.config.ts
+└── package.json
+,,,

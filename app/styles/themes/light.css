@@ -1,0 +1,7 @@
+/* Light theme variables and styles */
+:root {
+  /* Light theme specific overrides */
+  --bg-primary: #ffffff;
+  --text-primary: #1a1a1a;
+  --border-color: #e5e7eb;
+} 
