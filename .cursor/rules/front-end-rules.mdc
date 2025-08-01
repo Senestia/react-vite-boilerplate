@@ -1,0 +1,10 @@
+---
+globs: app/*
+alwaysApply: false
+---
+This project uses Vite, React Router 7, Tailwind CSS, TypeScript, and Ant-D as a tech stack.
+
+Styling should be follow the tailwind CSS
+
+Components need breakdown to atomicdesign use context7 and Must using Ant-d ref.https://ant.design/
+NextJS must use parallel-routes ref.https://nextjs.org/docs/app/api-reference/file-conventions/parallel-routes

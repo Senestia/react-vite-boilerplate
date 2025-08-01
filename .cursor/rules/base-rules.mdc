@@ -1,0 +1,16 @@
+---
+alwaysApply: true
+---
+Before writing any code, check  and whole source code to understand the context and requirements of the project.
+Do use sequential thinking to break down what you need to do before writing code. 
+Use context7 to search code documentation to understand how to use libraries and components.
+You can do a web search to find more information about the libraries and components.
+
+
+Code should follow below guidelines:
+1. Write minimal code to achieve the task.
+2. Write code that is easy to read and understand.
+3. Do not write comments unless necessary to explain complex logic.
+4. Try to reuse existing code and components as much as possible.
+5. Do not refactor unless necessary such as seeing 3 duplicated code blocks.
+6. Write secure code following secure coding guidelines from OWASP.
