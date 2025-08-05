@@ -2,48 +2,49 @@
 globs: app/*
 alwaysApply: false
 ---
-This project uses Vite, React Router 7, Tailwind CSS v4 and TypeScript tech stack.
 
-Styling should be follow the tailwind CSS
+## Tech Stack & Architecture
 
-Components need breakdown to atomicdesign use context7
+- Use Vite + React Router 7 + Tailwind CSS v4 + TypeScript
+- Follow React Router v7 standard: Adhere strictly to React Router v7 best practices for project structure, routing, and performance optimization.
+- Use project structure with app/ directory containing all application code
 
-react router folder convention  https://reactrouter.com/how-to/file-route-conventions
+## Component Design Principles
 
-project structure 
-,,,
-my-react-app/
-├── public/                      # 🌐 Static assets
-│   ├── images/
-│   ├── icons/
-│   ├── fonts/
-│   └── locales/
-├── app/                         # 🎯 All application code
-│   ├── root.tsx                # Root component
-│   ├── routes.ts               # Route configuration
-│   ├── routes/                 # 📂 File-based routes
-│   │   ├── _index.tsx          # Home route
-│   │   ├── _layout.tsx         # Root layout
-│   │   └── products/
-│   │       ├── _index.tsx 
-│   │       ├── _components/
-│   │       └── _hook/
-│   ├── components/             # 🌐 Shared components
-│   ├── hooks/                  # 🎣 Global hooks
-│   ├── utils/
-│   ├── lib/
-│   ├── assets/
-│   ├── types/
-│   └── styles/ 
-│       ├── app.css 
-│       ├── components.css
-│       ├── utilities.css 
-│       └── themes/
-│           ├── light.css
-│           ├── dark.css
-│           └── variables.css
-├── main.tsx
-├── tailwind.config.ts
-├── vite.config.ts
-└── package.json
-,,,
+- Single Responsibility: One component = one function
+- Reusability: Always reuse existing components with modifications before creating new ones
+- Small Components: Break large components into smaller, manageable pieces
+- No Over-nesting: Avoid deeply nested component structures
+- Capitalized Names: Always start component names with capital letters
+
+## Code Quality Standards
+
+- Ensure all code following clean code principles and aligns with the SOLID design Principle
+- DRY Principle: Don't repeat yourself - avoid duplicate code/components
+- Destructuring: Use destructuring for props to improve readability
+- ES6 Spread: Use {...props} for passing object properties
+- Map Functions: Use map() for dynamic rendering with proper keys
+- Minimal Comments: Write self-explanatory code, comment only when necessary
+- Keep each files under 500 lines of code applying modular design and separation of concerns
+- Testable Code: Write clear, testable code with matching test file names
+
+## Styling Guidelines
+
+- Follow Tailwind CSS patterns consistently
+- Avoid unnecessary <div> elements - use shorthand when needed
+- Organize styles in designated CSS files (app.css, components.css, utilities.css)
+
+## File Organization
+
+- Place route-specific components and hooks align with React Router v7 best practices
+- Use shared components in app/components/
+- Use shared utils in app/utils/
+- Use global hooks in app/hooks/
+
+## React Best Practices
+
+- Use functional components as default
+- Implement appropriate lifecycle methods when needed
+- Keep logic simple in lifecycle methods
+- Separate UI logic from business logic
+- Don't mix data and presentation logic
