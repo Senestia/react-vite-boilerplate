@@ -1,4 +1,4 @@
-import pokemonHttp from "~/utils/http"
+import { pokemonHttp } from "~/shared/utils/http"
 import type {
   PokemonDetail,
   PokemonListItem,
@@ -19,8 +19,10 @@ async function fetchPokemonByName(name: string): Promise<PokemonDetail> {
   )
 
   const types: string[] = (data.types ?? [])
-    .map((entry) => entry.type?.name)
-    .filter((t): t is string => Boolean(t))
+    .map(
+      (entry: RawPokemonDetailApiResponse["types"][number]) => entry.type?.name,
+    )
+    .filter((t: string | undefined): t is string => Boolean(t))
 
   return {
     id: data.id,

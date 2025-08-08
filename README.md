@@ -9,7 +9,7 @@ A modern, production-ready React boilerplate built with cutting-edge technologie
 This boilerplate leverages the latest and greatest in React ecosystem:
 
 - **[React 19](https://react.dev/)** - Latest React with concurrent features
-- **[React Router 7](https://reactrouter.com/)** - Modern file-based routing with SSR
+- **[React Router 7](https://reactrouter.com/)** - Modern file-based routing (SPA mode by default)
 - **[Vite 6](https://vitejs.dev/)** - Lightning-fast development and build tool
 - **[Tailwind CSS v4](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe development with strict configuration
@@ -22,7 +22,7 @@ This boilerplate leverages the latest and greatest in React ecosystem:
 - 🌓 **Dark/Light Theme** - Built-in theme system with CSS variables
 - ⚡️ **Hot Module Replacement** - Instant development feedback
 - 📦 **Asset Optimization** - Automatic bundling and optimization
-- 🔄 **Server-Side Rendering** - Enhanced performance and SEO
+- 🔄 **SPA by Default** - Configure SSR if needed via `react-router.config.ts`
 - 🔒 **Type Safety** - Full TypeScript integration
 - 📱 **Responsive Design** - Mobile-first approach with Tailwind CSS
 - 🧩 **Path Aliases** - Clean imports with `~` alias for app directory
@@ -130,7 +130,7 @@ Components are organized using atomic design methodology:
 
 - `npm run dev` - Start development server with HMR
 - `npm run build` - Create production build
-- `npm run start` - Start production server
+- `npm run start` - Preview production build (SPA)
 - `npm run typecheck` - Run TypeScript type checking
 
 ## 🎨 Styling Guidelines

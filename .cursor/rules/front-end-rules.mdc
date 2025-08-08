@@ -32,6 +32,8 @@ alwaysApply: false
 - **Co-location**: Keep related files (components, styles, tests) physically close
 
 - **Repositories**: Data-provider layer (no React/UI) consumed by hooks/containers; place under `app/routes/[page]/repositories/` or `app/shared/repositories/` when shared; depend only on utils/constants/types; return typed models and propagate errors; no side effects.
+- **Repositories**: Data-provider layer (no React/UI) consumed by hooks/containers; place under `app/routes/[page]/repositories/` or `app/shared/repositories/` when shared; depend only on utils/constants/types; return typed models and propagate errors; no side effects.
+- **HTTP Clients & Endpoints**: Centralize cross-feature HTTP clients and API endpoint constants under `app/shared/utils/` and `app/shared/constants/`. Feature repositories must import shared clients (e.g., `pokemonHttp`) and must not define their own axios instances.
 
 ## Barrel File Usage Guidelines
 

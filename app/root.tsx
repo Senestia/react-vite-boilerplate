@@ -12,6 +12,10 @@ import type { Route } from "./+types/root"
 import "./styles/app.css"
 import i18n from "./utils/i18n"
 
+export const meta: Route.MetaFunction = () => [
+  { name: "robots", content: "noindex,nofollow" },
+]
+
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {

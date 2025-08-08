@@ -1,10 +1,10 @@
-import { Link, useParams } from "react-router"
+import { Link, useLoaderData, useParams } from "react-router"
+import type { PokemonDetail } from "../../types/pokemon.types"
 import { PokemonDetails } from "../components/PokemonDetails"
-import { usePokemonDetails } from "../hooks/usePokemonDetails"
 
 export function PokemonDetailsContainer() {
   const { name = "" } = useParams<{ name: string }>()
-  const { isLoading, errorMessage, pokemon } = usePokemonDetails(name)
+  const { pokemon } = useLoaderData() as { pokemon: PokemonDetail }
 
   return (
     <main className="flex items-center justify-center pt-16 pb-4">
@@ -20,19 +20,7 @@ export function PokemonDetailsContainer() {
         </header>
 
         <section className="w-full max-w-xl">
-          {isLoading && (
-            <div className="rounded-2xl border border-gray-200 p-6 text-center dark:border-gray-700">
-              Loading...
-            </div>
-          )}
-          {!isLoading && errorMessage && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
-              {errorMessage}
-            </div>
-          )}
-          {!isLoading && !errorMessage && pokemon && (
-            <PokemonDetails pokemon={pokemon} />
-          )}
+          {pokemon && <PokemonDetails pokemon={pokemon} />}
         </section>
       </div>
     </main>

@@ -1,9 +1,10 @@
+import { useLoaderData } from "react-router"
 import { PokemonHeader } from "../components/PokemonHeader"
 import { PokemonList } from "../components/PokemonList"
-import { usePokemonList } from "../hooks/usePokemonList"
+import type { PokemonListItem } from "../types/pokemon.types"
 
 export function PokemonExplorer() {
-  const { isLoading, errorMessage, pokemonList } = usePokemonList()
+  const { pokemonList } = useLoaderData() as { pokemonList: PokemonListItem[] }
 
   return (
     <main className="flex items-center justify-center pt-16 pb-4">
@@ -11,17 +12,7 @@ export function PokemonExplorer() {
         <PokemonHeader />
 
         <section className="w-full max-w-4xl">
-          {isLoading && (
-            <div className="rounded-2xl border border-gray-200 p-6 text-center dark:border-gray-700">
-              Loading...
-            </div>
-          )}
-          {!isLoading && errorMessage && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
-              {errorMessage}
-            </div>
-          )}
-          {!isLoading && !errorMessage && <PokemonList items={pokemonList} />}
+          <PokemonList items={pokemonList} />
         </section>
       </div>
     </main>

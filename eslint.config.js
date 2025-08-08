@@ -123,7 +123,14 @@ export default tseslint.config(
         "warn",
         {
           allowConstantExport: true,
-          allowExportNames: ["meta", "loader", "action", "headers", "links"],
+          allowExportNames: [
+            "meta",
+            "loader",
+            "clientLoader",
+            "action",
+            "headers",
+            "links",
+          ],
         },
       ],
 
