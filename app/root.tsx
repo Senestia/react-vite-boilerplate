@@ -1,3 +1,5 @@
+"use client"
+import { I18nextProvider, useTranslation } from "react-i18next"
 import {
   isRouteErrorResponse,
   Links,
@@ -9,6 +11,7 @@ import {
 
 import type { Route } from "./+types/root"
 import "./styles/app.css"
+import i18n from "./utils/i18n"
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -25,7 +28,7 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang={i18n.language}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -33,7 +36,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -46,15 +49,17 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!"
-  let details = "An unexpected error occurred."
+  const { t } = useTranslation()
+  let message = t("error.title.generic")
+  let details = t("error.details.generic")
   let stack: string | undefined
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error"
+    message =
+      error.status === 404 ? t("error.title.404") : t("error.title.error")
     details =
       error.status === 404
-        ? "The requested page could not be found."
+        ? t("error.details.404")
         : error.statusText || details
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     const { message, stack: errorStack } = error

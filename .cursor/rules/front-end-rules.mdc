@@ -4,13 +4,11 @@ alwaysApply: false
 ---
 
 ## Tech Stack & Architecture
-
 - Use Vite + React Router 7 + Tailwind CSS v4 + TypeScript
 - Follow React Router v7 standard: Adhere strictly to React Router v7 best practices for project structure, routing, and performance optimization.
 - Use project structure with app/ directory containing all application code
 
 ## Component Design Principles
-
 - Single Responsibility: One component = one function
 - Reusability: Always reuse existing components with modifications before creating new ones
 - Small Components: Break large components into smaller, manageable pieces
@@ -18,7 +16,6 @@ alwaysApply: false
 - Capitalized Names: Always start component names with capital letters
 
 ## Code Quality Standards
-
 - Ensure all code following clean code principles and aligns with the SOLID design Principle
 - DRY Principle: Don't repeat yourself - avoid duplicate code/components
 - Destructuring: Use destructuring for props to improve readability
@@ -29,20 +26,16 @@ alwaysApply: false
 - Testable Code: Write clear, testable code with matching test file names
 
 ## Styling Guidelines
-
 - Follow Tailwind CSS patterns consistently
 - Avoid unnecessary <div> elements - use shorthand when needed
 - Organize styles in designated CSS files (app.css, components.css, utilities.css)
 
 ## File Organization
-
-- Place route-specific components and hooks align with React Router v7 best practices
 - Use shared components in app/components/
 - Use shared utils in app/utils/
 - Use global hooks in app/hooks/
 
 ## React Best Practices
-
 - Use functional components as default
 - Implement appropriate lifecycle methods when needed
 - Keep logic simple in lifecycle methods

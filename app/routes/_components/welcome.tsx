@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next"
 import logoDark from "/icons/logo-dark.svg"
 import logoLight from "/icons/logo-light.svg"
 
 export function Welcome() {
+  const { t } = useTranslation()
   return (
     <main className="flex items-center justify-center pt-16 pb-4">
       <div className="flex min-h-0 flex-1 flex-col items-center gap-16">
@@ -9,12 +11,12 @@ export function Welcome() {
           <div className="w-[500px] max-w-[100vw] p-4">
             <img
               src={logoLight}
-              alt="React Router"
+              alt={t("brand.reactRouter")}
               className="block w-full dark:hidden"
             />
             <img
               src={logoDark}
-              alt="React Router"
+              alt={t("brand.reactRouter")}
               className="hidden w-full dark:block"
             />
           </div>
@@ -22,7 +24,7 @@ export function Welcome() {
         <div className="w-full max-w-[300px] space-y-6 px-4">
           <nav className="space-y-4 rounded-3xl border border-gray-200 p-6 dark:border-gray-700">
             <p className="text-center leading-6 text-gray-700 dark:text-gray-200">
-              What&apos;s next?
+              {t("welcome.whatsNext")}
             </p>
             <ul>
               {resources.map(({ href, text, icon }) => (
@@ -34,7 +36,7 @@ export function Welcome() {
                     rel="noreferrer"
                   >
                     {icon}
-                    {text}
+                    {t(text)}
                   </a>
                 </li>
               ))}
@@ -49,7 +51,7 @@ export function Welcome() {
 const resources = [
   {
     href: "https://reactrouter.com/docs",
-    text: "React Router Docs",
+    text: "welcome.resources.reactRouterDocs",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -69,7 +71,7 @@ const resources = [
   },
   {
     href: "https://rmx.as/discord",
-    text: "Join Discord",
+    text: "welcome.resources.joinDiscord",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"

@@ -13,15 +13,18 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "quality": "npm run lint:check && npm run typecheck && npm run format:check",
-    "quality:fix": "npm run lint:fix && npm run format",
-    "prepare": "husky"
+    "quality:fix": "npm run lint:fix && npm run format"
   },
   "dependencies": {
     "@react-router/node": "^7.7.1",
     "@react-router/serve": "^7.7.1",
+    "i18next": "^25.3.2",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "i18next-http-backend": "^3.0.2",
     "isbot": "^5.1.27",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-i18next": "^15.6.1",
     "react-router": "^7.7.1",
     "react-router-dom": "^7.7.1"
   },

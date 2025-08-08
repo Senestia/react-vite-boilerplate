@@ -1,0 +1,29 @@
+{
+  "brand": {
+    "reactRouter": "React Router"
+  },
+  "app": {
+    "meta": {
+      "title": "แอป React Router ใหม่",
+      "description": "ยินดีต้อนรับสู่ React Router!"
+    }
+  },
+  "welcome": {
+    "whatsNext": "ต่อไปทำอะไรดี?",
+    "resources": {
+      "reactRouterDocs": "เอกสาร React Router",
+      "joinDiscord": "เข้าร่วมดิสคอร์ด"
+    }
+  },
+  "error": {
+    "title": {
+      "generic": "โอ๊ะ!",
+      "404": "404",
+      "error": "ข้อผิดพลาด"
+    },
+    "details": {
+      "generic": "เกิดข้อผิดพลาดที่ไม่คาดคิด",
+      "404": "ไม่พบหน้าที่ร้องขอ"
+    }
+  }
+}

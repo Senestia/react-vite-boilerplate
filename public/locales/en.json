@@ -1,0 +1,29 @@
+{
+  "brand": {
+    "reactRouter": "React Router"
+  },
+  "app": {
+    "meta": {
+      "title": "New React Router App",
+      "description": "Welcome to React Router!"
+    }
+  },
+  "welcome": {
+    "whatsNext": "What's next?",
+    "resources": {
+      "reactRouterDocs": "React Router Docs",
+      "joinDiscord": "Join Discord"
+    }
+  },
+  "error": {
+    "title": {
+      "generic": "Oops!",
+      "404": "404",
+      "error": "Error"
+    },
+    "details": {
+      "generic": "An unexpected error occurred",
+      "404": "The requested page was not found"
+    }
+  }
+}
