@@ -24,6 +24,9 @@
     "details": {
       "generic": "An unexpected error occurred",
       "404": "The requested page was not found"
+    },
+    "actions": {
+      "goHome": "Go Home"
     }
   }
 }

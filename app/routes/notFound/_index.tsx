@@ -1,14 +1,13 @@
 import type { Route } from "./+types/_index"
-import { Welcome } from "./components/welcome"
+import { NotFound } from "./components/NotFound"
 
 export function meta(_args: Route.MetaArgs) {
-  // Static meta; runtime translations handled in <Layout> lang and UI strings
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "404 - Page Not Found" },
+    { name: "description", content: "The requested page was not found" },
   ]
 }
 
-export default function Home() {
-  return <Welcome />
+export default function NotFoundRoute() {
+  return <NotFound />
 }

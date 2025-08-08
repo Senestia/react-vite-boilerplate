@@ -8,7 +8,6 @@ const i18n: I18nInstance = i18next.createInstance()
 
 if (isBrowser) {
   // Lazy import to keep server bundle clean
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   ;(async () => {
     const [{ default: HttpBackend }, { default: LanguageDetector }] =
       await Promise.all([

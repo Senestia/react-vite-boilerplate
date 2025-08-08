@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next"
 import logoDark from "/icons/logo-dark.svg"
 import logoLight from "/icons/logo-light.svg"
 
-export function Welcome() {
+export function HomeWelcome() {
   const { t } = useTranslation()
   return (
     <main className="flex items-center justify-center pt-16 pb-4">

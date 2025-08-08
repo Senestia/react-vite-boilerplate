@@ -1,5 +1,5 @@
 import type { Route } from "./+types/_index"
-import { Welcome } from "./components/welcome"
+import { HomeWelcome } from "./components/HomeWelcome"
 
 export function meta(_args: Route.MetaArgs) {
   // Static meta; runtime translations handled in <Layout> lang and UI strings
@@ -10,5 +10,5 @@ export function meta(_args: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <Welcome />
+  return <HomeWelcome />
 }

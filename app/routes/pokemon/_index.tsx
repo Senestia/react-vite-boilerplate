@@ -1,13 +1,13 @@
 import type { Route } from "./+types/_index"
-import { Welcome } from "../home/components/welcome"
+import { PokemonExplorer } from "./components/PokemonExplorer"
 
 export function meta(_args: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "Pokemon" },
+    { name: "description", content: "Explore Pokemon features and examples." },
   ]
 }
 
 export default function Index() {
-  return <Welcome />
+  return <PokemonExplorer />
 }
