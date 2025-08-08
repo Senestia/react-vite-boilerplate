@@ -10,7 +10,7 @@ import {
 
 import type { Route } from "./+types/root"
 import "./styles/app.css"
-import i18n from "./utils/i18n"
+import i18n from "./shared/utils/i18n"
 
 export const meta: Route.MetaFunction = () => [
   { name: "robots", content: "noindex,nofollow" },
