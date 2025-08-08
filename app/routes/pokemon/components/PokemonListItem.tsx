@@ -1,5 +1,5 @@
 import { Link } from "react-router"
-import type { PokemonListItem as PokemonListItemModel } from "../types/pokemon.types"
+import type { PokemonListItem as PokemonListItemModel } from "../types"
 
 interface PokemonListItemProps {
   pokemon: PokemonListItemModel

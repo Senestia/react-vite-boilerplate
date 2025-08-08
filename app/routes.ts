@@ -6,12 +6,12 @@ import {
 } from "@react-router/dev/routes"
 
 export default [
-  layout("routes/_layout.tsx", [
-    index("routes/home/_index.tsx"),
-    route("/pokemon", "routes/pokemon/_layout.tsx", [
-      index("routes/pokemon/_index.tsx"),
-      route(":name", "routes/pokemon/$name/_index.tsx"),
+  layout("routes/layout.tsx", [
+    index("routes/home/index.tsx"),
+    route("/pokemon", "routes/pokemon/layout.tsx", [
+      index("routes/pokemon/index.tsx"),
+      route(":pokemonName", "routes/pokemon/$pokemonName/index.tsx"),
     ]),
-    route("*", "routes/notFound/_index.tsx"),
+    route("*", "routes/notFound/index.tsx"),
   ]),
 ] satisfies RouteConfig

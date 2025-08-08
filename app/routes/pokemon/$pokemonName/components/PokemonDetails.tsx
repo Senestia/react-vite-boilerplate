@@ -1,4 +1,4 @@
-import type { PokemonDetail } from "../../types/pokemon.types"
+import type { PokemonDetail } from "../../types"
 
 interface PokemonDetailsProps {
   pokemon: PokemonDetail

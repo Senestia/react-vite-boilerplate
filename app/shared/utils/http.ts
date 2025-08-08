@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance } from "axios"
-import { POKEMON_API_BASE_URL } from "../constants/API_ENDPOINTS"
+import { POKEMON_API_BASE_URL } from "../constants/endpoint"
 
 export function createHttpClient(baseURL: string): AxiosInstance {
   return axios.create({

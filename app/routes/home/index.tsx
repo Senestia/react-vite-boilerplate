@@ -1,4 +1,4 @@
-import type { Route } from "./+types/_index"
+import type { Route } from "./+types/index"
 import { HomeWelcome } from "./components/HomeWelcome"
 
 export function meta(_args: Route.MetaArgs) {
@@ -9,6 +9,6 @@ export function meta(_args: Route.MetaArgs) {
   ]
 }
 
-export default function Home() {
+export default function HomeRoute() {
   return <HomeWelcome />
 }

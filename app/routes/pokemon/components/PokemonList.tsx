@@ -1,4 +1,4 @@
-import type { PokemonListItem as PokemonListItemModel } from "../types/pokemon.types"
+import type { PokemonListItem as PokemonListItemModel } from "../types"
 import { PokemonListItem } from "./PokemonListItem"
 
 interface PokemonListProps {

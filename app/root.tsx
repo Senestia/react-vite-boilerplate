@@ -9,8 +9,9 @@ import {
 } from "react-router"
 
 import type { Route } from "./+types/root"
-import "./styles/app.css"
+import ErrorView from "./shared/components/ErrorView"
 import i18n from "./shared/utils/i18n"
+import "./styles/app.css"
 
 export const meta: Route.MetaFunction = () => [
   { name: "robots", content: "noindex,nofollow" },
@@ -51,6 +52,10 @@ export default function App() {
   return <Outlet />
 }
 
+export function HydrateFallback() {
+  return <div>Loading…</div>
+}
+
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   const { t } = useTranslation()
   let message = t("error.title.generic")
@@ -70,15 +75,9 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     stack = errorStack
   }
 
-  return (
-    <main className="container mx-auto p-4 pt-16">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full overflow-x-auto p-4">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
+  return stack !== undefined ? (
+    <ErrorView title={message} details={details} stack={stack} />
+  ) : (
+    <ErrorView title={message} details={details} />
   )
 }
