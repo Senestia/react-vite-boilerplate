@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { pokemonRepository } from "../repositories/pokemonRepository"
 import type { PokemonListItem } from "../types/pokemon.types"
 
 interface UsePokemonListResult {
@@ -17,20 +18,9 @@ export function usePokemonList(limit = 12): UsePokemonListResult {
 
     async function loadPokemon() {
       try {
-        const response = await fetch(
-          `https://pokeapi.co/api/v2/pokemon?limit=${encodeURIComponent(
-            String(limit),
-          )}`,
-          {
-            headers: { accept: "application/json" },
-          },
-        )
-        if (!response.ok) {
-          throw new Error(`Failed: ${response.status}`)
-        }
-        const data = (await response.json()) as { results: PokemonListItem[] }
+        const results = await pokemonRepository.fetchPokemonList(limit)
         if (isActive) {
-          setPokemonList(data.results)
+          setPokemonList(results)
         }
       } catch {
         if (isActive) {

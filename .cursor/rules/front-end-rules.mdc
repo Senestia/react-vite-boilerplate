@@ -25,36 +25,35 @@ alwaysApply: false
   ├── hooks/ # Page-specific custom hooks
   ├── services/ # Page-specific API services
   ├── constants/ # Page-specific constants and static data
+  ├── repositories/ # Page-specific data providers definitions
   ├── types/ # Page-specific TypeScript definitions
   └── utils/ # Page-specific utility functions
 - **Shared Resources**: Place reusable assets in app/shared/ directory
 - **Co-location**: Keep related files (components, styles, tests) physically close
 
+- **Repositories**: Data-provider layer (no React/UI) consumed by hooks/containers; place under `app/routes/[page]/repositories/` or `app/shared/repositories/` when shared; depend only on utils/constants/types; return typed models and propagate errors; no side effects.
+
 ## Barrel File Usage Guidelines
 
-### Use Barrel Files When:
+### When to use
 
-- **Public API Exports:** Creating external-facing module APIs for shared resources
-- **Flat Directory Structure:** Directory contains 3+ related files of same type (components, hooks, utils)
-- **Component Libraries:** Exporting design system components from app/shared/components/
-- **Utility Collections:** Grouping related utilities, constants, or types
-- **Feature Modules:** Exposing public interface of complete feature modules
+- Expose a module’s public API (shared resources, feature modules)
+- Folder has 3+ related files of the same type (components/hooks/utils)
+- Group related utilities, constants, types, or repository providers
 
-### Avoid Barrel Files When:
+### When to avoid
 
-- **Internal Cross-References:** Files within same feature/page importing from each other
-- **Deep Hierarchies:** Complex nested dependencies that risk circular imports
-- **Single File Export:** Directory contains only one exportable module
-- **Performance Critical:** Large utility collections where selective importing is crucial
-- **Development Phase:** Rapidly changing file structure during initial development
+- Files within the same feature import each other (risk of circular deps)
+- Deep hierarchies that complicate dependencies
+- Single-file folders or performance‑critical large utility sets
+- Early development when structure is changing rapidly
 
-### Barrel Implementation Rules:
+### Rules
 
-- **Module-Level Only:** One barrel per logical module/folder, not app-wide barrels
-- **Export-Only:** No side effects, business logic, or imports with side effects
-- **No Re-exports of Re-exports:** Avoid chaining barrel files
-- **Direct Internal Imports:** Use direct imports for file-to-file within same feature
-- **Tree-Shaking Safe:** Ensure "sideEffects": false in package.json for pure exports
+- One barrel per folder/module; no app‑wide barrels
+- Export‑only (no side effects); do not chain re‑exports
+- Within a feature, prefer direct file imports over its barrel
+- Keep tree‑shaking safe (set "sideEffects": false)
 
 ## Naming Conventions
 
