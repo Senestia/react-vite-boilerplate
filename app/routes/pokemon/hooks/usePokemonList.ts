@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { pokemonRepository } from "../repositories/pokemonRepository"
+import { pokemonRepository } from "../repositories/pokemon"
 import type { PokemonListItem } from "../types/pokemon.types"
 
 interface UsePokemonListResult {
