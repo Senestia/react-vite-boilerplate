@@ -5,11 +5,11 @@ import type { Route } from "./+types/index"
 import { PokemonDetailsContainer } from "./containers/PokemonDetailsContainer"
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-  const pokemonName = params.pokemonName?.toString() ?? ""
-  if (!pokemonName) {
+  const name = params.name?.toString() ?? ""
+  if (!name) {
     throw new Response("Missing pokemon name", { status: 400 })
   }
-  const pokemon = await pokemonRepository.fetchPokemonByName(pokemonName)
+  const pokemon = await pokemonRepository.fetchPokemonByName(name)
   return { pokemon }
 }
 

@@ -89,7 +89,7 @@ export default [
     index("routes/home/index.tsx"),
     route("/pokemon", "routes/pokemon/layout.tsx", [
       index("routes/pokemon/index.tsx"),
-      route(":pokemonName", "routes/pokemon/$pokemonName/index.tsx"),
+      route(":name", "routes/pokemon/$name/index.tsx"),
     ]),
     route("*", "routes/notFound/index.tsx"),
   ]),
@@ -119,16 +119,16 @@ export default function PokemonRoute({ loaderData }: Route.ComponentProps) {
 
 ### 🧭 Dynamic route with params + loader
 
-`app/routes/pokemon/$pokemonName/index.tsx`
+`app/routes/pokemon/$name/index.tsx`
 
 ```tsx
 import type { Route } from "./+types/index"
 import { pokemonRepository } from "../repositories/pokemon"
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-  const pokemonName = params.pokemonName?.toString() ?? ""
-  if (!pokemonName) throw new Response("Missing pokemon name", { status: 400 })
-  const pokemon = await pokemonRepository.fetchPokemonByName(pokemonName)
+  const name = params.name?.toString() ?? ""
+  if (!name) throw new Response("Missing pokemon name", { status: 400 })
+  const pokemon = await pokemonRepository.fetchPokemonByName(name)
   return { pokemon }
 }
 
