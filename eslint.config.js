@@ -191,7 +191,6 @@ export default tseslint.config(
       "no-unused-expressions": "error",
       "no-implicit-coercion": "error",
       eqeqeq: ["error", "always"],
-      curly: "error",
     },
   },
 

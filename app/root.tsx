@@ -1,4 +1,3 @@
-"use client"
 import { I18nextProvider, useTranslation } from "react-i18next"
 import {
   isRouteErrorResponse,
