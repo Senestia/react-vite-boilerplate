@@ -1,6 +1,6 @@
-import { usePokemonList } from "../../../hooks/usePokemonList"
-import { PokemonHeader } from "./PokemonHeader"
-import { PokemonList } from "./PokemonList"
+import { PokemonHeader } from "../components/PokemonHeader"
+import { PokemonList } from "../components/PokemonList"
+import { usePokemonList } from "../hooks/usePokemonList"
 
 export function PokemonExplorer() {
   const { isLoading, errorMessage, pokemonList } = usePokemonList()

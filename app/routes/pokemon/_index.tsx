@@ -1,5 +1,5 @@
 import type { Route } from "./+types/_index"
-import { PokemonExplorer } from "./components/PokemonExplorer"
+import { PokemonExplorer } from "./containers/PokemonExplorer"
 
 export function meta(_args: Route.MetaArgs) {
   return [

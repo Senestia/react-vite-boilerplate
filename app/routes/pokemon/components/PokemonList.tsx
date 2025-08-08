@@ -1,4 +1,4 @@
-import type { PokemonListItem } from "../types"
+import type { PokemonListItem } from "../types/pokemon.types"
 
 interface PokemonListProps {
   items: PokemonListItem[]

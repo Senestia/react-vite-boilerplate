@@ -1,5 +1,5 @@
 import { Outlet } from "react-router"
-import { SiteHeader } from "./components/SiteHeader"
+import { SiteHeader } from "../shared/components/SiteHeader"
 
 export default function AppLayout() {
   return (

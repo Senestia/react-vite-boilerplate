@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import type { PokemonListItem } from "../routes/pokemon/types"
+import type { PokemonListItem } from "../types/pokemon.types"
 
 interface UsePokemonListResult {
   isLoading: boolean

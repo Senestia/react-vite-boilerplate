@@ -4,40 +4,196 @@ alwaysApply: false
 ---
 
 ## Tech Stack & Architecture
-- Use Vite + React Router 7 + Tailwind CSS v4 + TypeScript
-- Follow React Router v7 standard: Adhere strictly to React Router v7 best practices for project structure, routing, and performance optimization.
-- Use project structure with app/ directory containing all application code
+
+- Use Vite + React Router 7 (Framework Mode, SSR: false) + Tailwind CSS v4 + TypeScript
+- Follow React Router v7 standard: Adhere strictly to React Router v7 best practices for project structure, routing, and performance optimization
+- Use file-based routing with app/ directory containing all application code
+- Implement page-specific organization with components/, containers/, hooks/, services/, constants/, types/, and utils/ folders
+
+## Project Structure Standards
+
+### File Organization Rules
+
+- **Route Files**: Use `_index.tsx` for main route components in page-specific folders. Do not use `route.tsx`.
+- **Layout Files**: Use `_layout.tsx` for layout routes at the root of each route directory to compose shared UI (e.g., header, nav, footer). Keep layout components presentational and free of page-specific business logic. One layout per route segment.
+- **Page-Specific Assets**: Organize in dedicated subfolders within each route directory:
+  app/routes/[page-name]/
+  ├── \_layout.tsx # Optional layout route for this segment
+  ├── \_index.tsx # Main route component
+  ├── components/ # Page-specific UI components
+  ├── containers/ # Page-specific business logic containers
+  ├── hooks/ # Page-specific custom hooks
+  ├── services/ # Page-specific API services
+  ├── constants/ # Page-specific constants and static data
+  ├── types/ # Page-specific TypeScript definitions
+  └── utils/ # Page-specific utility functions
+- **Shared Resources**: Place reusable assets in app/shared/ directory
+- **Co-location**: Keep related files (components, styles, tests) physically close
+
+## Barrel File Usage Guidelines
+
+### Use Barrel Files When:
+
+- **Public API Exports:** Creating external-facing module APIs for shared resources
+- **Flat Directory Structure:** Directory contains 3+ related files of same type (components, hooks, utils)
+- **Component Libraries:** Exporting design system components from app/shared/components/
+- **Utility Collections:** Grouping related utilities, constants, or types
+- **Feature Modules:** Exposing public interface of complete feature modules
+
+### Avoid Barrel Files When:
+
+- **Internal Cross-References:** Files within same feature/page importing from each other
+- **Deep Hierarchies:** Complex nested dependencies that risk circular imports
+- **Single File Export:** Directory contains only one exportable module
+- **Performance Critical:** Large utility collections where selective importing is crucial
+- **Development Phase:** Rapidly changing file structure during initial development
+
+### Barrel Implementation Rules:
+
+- **Module-Level Only:** One barrel per logical module/folder, not app-wide barrels
+- **Export-Only:** No side effects, business logic, or imports with side effects
+- **No Re-exports of Re-exports:** Avoid chaining barrel files
+- **Direct Internal Imports:** Use direct imports for file-to-file within same feature
+- **Tree-Shaking Safe:** Ensure "sideEffects": false in package.json for pure exports
+
+## Naming Conventions
+
+- **Components:** PascalCase (e.g., UserProfile.tsx)
+- **Hooks:** camelCase starting with 'use' (e.g., useUserData.ts)
+- **Services:** camelCase ending with 'Service' (e.g., userService.ts)
+- **Constants:** UPPER_SNAKE_CASE (e.g., API_ENDPOINTS.ts)
+- **Types:** PascalCase with .types.ts extension (e.g., user.types.ts)
+- **Barrel Files:** Always named index.ts (never barrel.ts or custom names)
 
 ## Component Design Principles
-- Single Responsibility: One component = one function
-- Reusability: Always reuse existing components with modifications before creating new ones
-- Small Components: Break large components into smaller, manageable pieces
-- No Over-nesting: Avoid deeply nested component structures
-- Capitalized Names: Always start component names with capital letters
+
+### Core Design Rules
+
+- **Single Responsibility**: One component = one clear function/purpose
+- **Reusability First**: Always check shared/components/ before creating new components
+- **Composition Over Inheritance**: Build complex UIs through component composition
+- **Small Components**: Maximum 150 lines per component file
+- **No Over-nesting**: Limit to 3 levels of component nesting maximum
+- **Capitalized Names**: All component names start with capital letters
+
+### Container vs Component Pattern
+
+- **Components** (`/components/`): Pure UI presentation, no business logic
+- **Containers** (`/containers/`): Business logic, state management, API calls
+- **Clear Separation**: Never mix data fetching with UI rendering in same file
 
 ## Code Quality Standards
-- Ensure all code following clean code principles and aligns with the SOLID design Principle
-- DRY Principle: Don't repeat yourself - avoid duplicate code/components
-- Destructuring: Use destructuring for props to improve readability
-- ES6 Spread: Use {...props} for passing object properties
-- Map Functions: Use map() for dynamic rendering with proper keys
-- Minimal Comments: Write self-explanatory code, comment only when necessary
-- Keep each files under 500 lines of code applying modular design and separation of concerns
-- Testable Code: Write clear, testable code with matching test file names
+
+### Clean Code Principles
+
+- **SOLID Principles**: Apply Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion
+- **DRY Principle**: Extract common logic into hooks, utils, or shared components
+- **File Size Limit**: Maximum 500 lines per file - split into smaller modules when exceeded
+- **Destructuring**: Always destructure props and state for better readability
+- **ES6+ Features**: Use modern JavaScript (spread operator, arrow functions, async/await)
+- **Type Safety**: Leverage TypeScript strictly - no `any` types allowed
+
+### Code Organization
+
+- **Barrel Exports**: Use index.ts files to export public APIs cleanly
+- **Logical Grouping**: Group related functions, types, and constants together
+- **Self-Documenting**: Write code that explains itself, minimize comments
+
+## React Router v7 Best Practices
+
+### Routing Standards
+
+- **File-Based Routing**: Leverage automatic route generation
+- **Loader Functions**: Use for data fetching with proper error handling
+- **Action Functions**: Implement for form submissions and mutations
+- **Meta Functions**: Define for SEO and page metadata
+- **Lazy Loading**: Implement route-level code splitting by default
+- **Guards**: Use layout routes for authentication and authorization
+
+### Data Loading Patterns
+
+- **Critical Data**: Load immediately in loader functions
+- **Non-Critical Data**: Use defer() for progressive loading
+- **Error Boundaries**: Implement at route level for graceful error handling
+- **Loading States**: Provide feedback during data fetching operations
 
 ## Styling Guidelines
-- Follow Tailwind CSS patterns consistently
-- Avoid unnecessary <div> elements - use shorthand when needed
-- Organize styles in designated CSS files (app.css, components.css, utilities.css)
 
-## File Organization
-- Use shared components in app/components/
-- Use shared utils in app/utils/
-- Use global hooks in app/hooks/
+### Tailwind CSS Standards
+
+- **Utility-First**: Use Tailwind utilities over custom CSS when possible
+- **Component Variants**: Create reusable component variants with consistent styling
+- **Responsive Design**: Mobile-first approach with appropriate breakpoints
+- **CSS Organization**: Structure in app.css, components.css, utilities.css
+- **Avoid Wrapper Divs**: Use semantic HTML elements and Tailwind directly
+
+### Style Organization
+
+- **Global Styles**: Define in app.css for app-wide styles
+- **Component Styles**: Use CSS modules for component-specific styles
+- **Utility Classes**: Create custom utilities in utilities.css for repeated patterns
 
 ## React Best Practices
-- Use functional components as default
-- Implement appropriate lifecycle methods when needed
-- Keep logic simple in lifecycle methods
-- Separate UI logic from business logic
-- Don't mix data and presentation logic
+
+### Component Development
+
+- **Functional Components**: Use as default pattern
+- **Custom Hooks**: Extract stateful logic into reusable hooks
+- **Props Interface**: Define clear TypeScript interfaces for all props
+- **Default Props**: Use default parameters instead of defaultProps
+- **Error Boundaries**: Implement for robust error handling
+
+### Performance Optimization
+
+- **Lazy Loading**: Use React.lazy() for route-level code splitting
+- **Memoization**: Apply React.memo, useMemo, useCallback judiciously
+- **Key Props**: Always provide unique keys for list items
+- **Bundle Analysis**: Monitor and optimize bundle sizes regularly
+
+## AI-Friendly Patterns
+
+### Clear Intent
+
+- **Descriptive Names**: Use verbose, self-explanatory names for functions and variables
+- **Consistent Patterns**: Follow established patterns throughout the codebase
+- **Type Annotations**: Provide explicit TypeScript types for better AI understanding
+- **JSDoc Comments**: Add JSDoc for complex functions and public APIs
+
+### Modular Architecture
+
+- **Single Purpose Files**: Each file should have one clear responsibility
+- **Predictable Structure**: Follow consistent folder and file organization
+- **Export Patterns**: Use clear export strategies (named vs default exports)
+- **Dependency Clarity**: Make dependencies and relationships explicit
+
+## Testing Requirements
+
+### Test Organization
+
+- **Co-located Tests**: Place test files next to source files
+- **Test File Naming**: Use `.test.tsx` or `.spec.tsx` extensions
+- **Test Coverage**: Aim for 80%+ coverage on critical paths
+- **Testing Pyramid**: Unit tests > Integration tests > E2E tests
+
+### Testing Standards
+
+- **React Testing Library**: Use for component testing
+- **User-Centric Tests**: Test behavior, not implementation details
+- **Mock Appropriately**: Mock external dependencies, not internal logic
+- **Test Data**: Use factories or fixtures for consistent test data
+
+## Performance Guidelines
+
+### Optimization Strategies
+
+- **Code Splitting**: Implement at route and component levels
+- **Asset Optimization**: Optimize images, fonts, and static assets
+- **Caching Strategies**: Leverage browser caching and service workers
+- **Bundle Analysis**: Regular monitoring of bundle sizes and dependencies
+
+### Monitoring
+
+- **Core Web Vitals**: Monitor LCP, FID, CLS metrics
+- **Error Tracking**: Implement error monitoring and reporting
+- **Performance Budget**: Set and maintain performance budgets
+- **Regular Audits**: Conduct regular performance and accessibility audits
