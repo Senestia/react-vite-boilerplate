@@ -11,6 +11,7 @@ Concise, enforceable rules for building front-end features in this repo.
 
 - Vite + React Router v7 (Framework Mode, no SSR) + Tailwind CSS v4 + TypeScript
 - Follow React Router v7 best practices; use file-based routing under `app/`
+- Use React Query for client-side caching/fetching of non-blocking data
 
 ## Structure & Organization
 
@@ -90,7 +91,7 @@ tests/
 ## React Router v7
 
 - File-based routing by default
-- Loaders: only for URL-driven or must-block-first-paint data, or when needed for  handle errors
+- Loaders: only for URL-driven or must-block-first-paint data, or when needed for handle errors
 - Actions: for form submissions/mutations
 - Lazy-load routes by default; use layout routes for guards
 
@@ -98,6 +99,14 @@ tests/
 
 - Non-blocking/interactive data: fetch in containers/hooks after render via repositories
 - Provide `ErrorBoundary` for failures
+
+### React Query
+
+- Initialize a single `QueryClient` and wrap the app with `QueryClientProvider` in `app/root.tsx`
+- Prefer `useQuery`/`useMutation` for client-side data. Reuse repository functions as query functions
+- Loaders: only for URL-driven or must-block-first-paint data. When a loader fetches data that will be used with React Query, return the data and also pre-populate via `initialData` in `useQuery`
+- Define stable query keys under a local `keys` object per route segment (e.g., `const keys = { list: (limit:number)=>["pokemon","list",limit], byName: (name:string)=>["pokemon","detail",name] }`)
+- Handle errors via `ErrorBoundary`; in components, surface loading and empty states
 
 ## Styling (Tailwind v4)
 

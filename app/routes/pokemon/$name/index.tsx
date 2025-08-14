@@ -1,23 +1,38 @@
-import { isRouteErrorResponse } from "react-router"
+import { QueryClient, useQuery } from "@tanstack/react-query"
+import { isRouteErrorResponse, useParams } from "react-router"
 import ErrorView from "../../../shared/components/ErrorView"
 import { pokemonRepository } from "../repositories/pokemon"
 import type { Route } from "./+types/index"
 import { PokemonDetailsContainer } from "./containers/PokemonDetailsContainer"
 
-export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-  const name = params.name?.toString() ?? ""
-  if (!name) {
-    throw new Response("Missing pokemon name", { status: 400 })
-  }
-  const pokemon = await pokemonRepository.fetchPokemonByName(name)
-  return { pokemon }
+const keys = {
+  byName: (name: string) => ["pokemon", "detail", name] as const,
 }
 
-export default function PokemonDetailsRoute({
-  loaderData,
-}: Route.ComponentProps) {
-  const { pokemon } = loaderData
-  return <PokemonDetailsContainer pokemon={pokemon} />
+export const clientLoader =
+  (queryClient: QueryClient) =>
+  async ({ params }: Route.ClientLoaderArgs) => {
+    const name = params.name?.toString() ?? ""
+    if (!name) {
+      throw new Response("Missing pokemon name", { status: 400 })
+    }
+    await queryClient.prefetchQuery({
+      queryKey: keys.byName(name),
+      queryFn: () => pokemonRepository.fetchPokemonByName(name),
+    })
+    return null
+  }
+
+export default function PokemonDetailsRoute() {
+  const { name = "" } = useParams<{ name: string }>()
+  const { data, isLoading, isError } = useQuery({
+    queryKey: keys.byName(name),
+    queryFn: () => pokemonRepository.fetchPokemonByName(name),
+    enabled: Boolean(name),
+  })
+  if (isLoading) return <p>Loading...</p>
+  if (isError || !data) throw new Error("Pokemon not found")
+  return <PokemonDetailsContainer pokemon={data} />
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

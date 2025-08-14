@@ -5,7 +5,7 @@ import { defineConfig } from "vite"
 import tsconfigPaths from "vite-tsconfig-paths"
 
 export default defineConfig({
-  plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
+  plugins: [reactRouter(), tailwindcss(), tsconfigPaths()],
   resolve: {
     alias: {
       "~": path.resolve(__dirname, "./app"),

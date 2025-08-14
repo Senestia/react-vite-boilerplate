@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { I18nextProvider, useTranslation } from "react-i18next"
 import {
   isRouteErrorResponse,
@@ -31,6 +32,7 @@ export const links: Route.LinksFunction = () => [
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const queryClient = new QueryClient()
   return (
     <html lang={i18n.language}>
       <head>
@@ -40,7 +42,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+        </QueryClientProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
