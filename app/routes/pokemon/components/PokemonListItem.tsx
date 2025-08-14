@@ -57,19 +57,6 @@ export function PokemonListItem({ pokemon }: PokemonListItemProps) {
           <div className="mx-auto h-20 w-20 rounded bg-gray-100 dark:bg-gray-800" />
         )}
 
-        {pokemon.types && pokemon.types.length > 0 ? (
-          <div className="mt-1 flex flex-wrap justify-center gap-1">
-            {pokemon.types.map((type) => (
-              <span
-                key={type}
-                className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-700 capitalize dark:bg-gray-800 dark:text-gray-300"
-              >
-                {type}
-              </span>
-            ))}
-          </div>
-        ) : null}
-
         <span className="mt-1 font-medium capitalize">{pokemon.name}</span>
       </div>
     </li>
