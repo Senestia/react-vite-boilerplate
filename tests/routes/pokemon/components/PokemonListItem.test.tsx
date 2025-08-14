@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest"
 import { PokemonListItem } from "~/routes/pokemon/components/PokemonListItem"
 
 describe("PokemonListItem", () => {
-  it("renders name and link and image from url id", () => {
+  it("renders name and image from url id", () => {
     const item = {
       name: "bulbasaur",
       url: "https://pokeapi.co/api/v2/pokemon/1/",
@@ -18,8 +18,7 @@ describe("PokemonListItem", () => {
     )
 
     expect(screen.getByText(/bulbasaur/i)).toBeInTheDocument()
-    const link = screen.getByRole("link", { name: /details/i })
-    expect(link).toHaveAttribute("href", "/pokemon/bulbasaur")
+    // Click target is the whole item now; no inner link to assert
     const img = screen.getByRole("img", { name: /bulbasaur/i })
     expect(img).toHaveAttribute(
       "src",

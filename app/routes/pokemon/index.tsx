@@ -1,32 +1,35 @@
-import { QueryClient, useQuery } from "@tanstack/react-query"
+import { QueryClient } from "@tanstack/react-query"
 import { isRouteErrorResponse } from "react-router"
 import ErrorView from "../../shared/components/ErrorView"
 import type { Route } from "./+types/index"
 import { PokemonExplorer } from "./containers/PokemonExplorer"
 import { pokemonRepository } from "./repositories/pokemon"
+import { usePokemonUiStore } from "./state/uiStore"
 
 const keys = {
-  list: (limit: number) => ["pokemon", "list", limit] as const,
+  listInfinite: (limit: number) =>
+    ["pokemon", "list", "infinite", limit] as const,
 }
 
 export const clientLoader =
   (queryClient: QueryClient) => async (_args: Route.ClientLoaderArgs) => {
-    await queryClient.prefetchQuery({
-      queryKey: keys.list(12),
-      queryFn: () => pokemonRepository.fetchPokemonList(12),
+    const limit = usePokemonUiStore.getState().listLimit
+    await queryClient.prefetchInfiniteQuery({
+      queryKey: keys.listInfinite(limit),
+      initialPageParam: 0,
+      queryFn: ({ pageParam }) =>
+        pokemonRepository.fetchPokemonListPage({ limit, offset: pageParam }),
+      getNextPageParam: (lastPage) => lastPage.nextOffset ?? undefined,
+      pages: 1,
     })
     return null
   }
 
 export default function PokemonRoute() {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: keys.list(12),
-    queryFn: () => pokemonRepository.fetchPokemonList(12),
-  })
-  if (isLoading) return <p>Loading...</p>
-  if (isError) throw new Error("Failed to load Pokemon list")
-  if (!data) throw new Error("No Pokemon list found")
-  return <PokemonExplorer pokemonList={data} />
+  // Data fetching lives in PokemonExplorer (container)
+  // Route stays presentational and relies on ErrorBoundary
+  // Loader above seeds the cache for the first page
+  return <PokemonExplorer />
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

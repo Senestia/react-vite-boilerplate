@@ -1,7 +1,9 @@
 import { QueryClient, useQuery } from "@tanstack/react-query"
+import { useEffect } from "react"
 import { isRouteErrorResponse, useParams } from "react-router"
 import ErrorView from "../../../shared/components/ErrorView"
 import { pokemonRepository } from "../repositories/pokemon"
+import { usePokemonUiStore } from "../state/uiStore"
 import type { Route } from "./+types/index"
 import { PokemonDetailsContainer } from "./containers/PokemonDetailsContainer"
 
@@ -25,6 +27,13 @@ export const clientLoader =
 
 export default function PokemonDetailsRoute() {
   const { name = "" } = useParams<{ name: string }>()
+  const setSelectedName = usePokemonUiStore(
+    (state: { setSelectedName: (name: string) => void }) =>
+      state.setSelectedName,
+  )
+  useEffect(() => {
+    setSelectedName(name)
+  }, [name, setSelectedName])
   const { data, isLoading, isError } = useQuery({
     queryKey: keys.byName(name),
     queryFn: () => pokemonRepository.fetchPokemonByName(name),

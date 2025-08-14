@@ -108,6 +108,15 @@ tests/
 - Define stable query keys under a local `keys` object per route segment (e.g., `const keys = { list: (limit:number)=>["pokemon","list",limit], byName: (name:string)=>["pokemon","detail",name] }`)
 - Handle errors via `ErrorBoundary`; in components, surface loading and empty states
 
+## State Management (Zustand)
+
+- Use Zustand for ephemeral UI/app state only (e.g., filter values, selected IDs, toggles). Do not store server-fetched entities; use React Query for server data
+- Co-locate feature-specific stores under the route segment in `hooks/` or `state/` folders; promote cross-feature state to `app/shared/stores/`
+- Stores are plain, framework-agnostic modules. No React imports inside stores
+- Keep state minimal and serializable; expose small actions; prefer selectors in components to avoid re-renders
+- Access store outside React via `store.getState()` in loaders or utilities when needed
+- Optional persistence: use middleware only when justified; default to in-memory
+
 ## Styling (Tailwind v4)
 
 - Prefer utilities over custom CSS; create reusable variants

@@ -1,55 +1,45 @@
+import { QueryClient } from "@tanstack/react-query"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-const { mockFetchPokemonByName } = vi.hoisted(() => ({
-  mockFetchPokemonByName: vi.fn(),
-}))
-
-vi.mock("~/routes/pokemon/repositories/pokemon", () => ({
-  pokemonRepository: {
-    fetchPokemonList: vi.fn(),
-    fetchPokemonByName: mockFetchPokemonByName,
-  },
-}))
 
 import { clientLoader } from "~/routes/pokemon/$name/index"
 
-describe("pokemon/$name clientLoader", () => {
+describe("pokemon/$name clientLoader (prefetch)", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockFetchPokemonByName.mockReset()
   })
 
   it("throws 400 when missing name param", async () => {
+    const queryClient = new QueryClient()
+    const loader = clientLoader(queryClient)
     await expect(
-      clientLoader({ params: {} } as unknown as any),
+      loader({ params: {} } as unknown as any),
     ).rejects.toMatchObject({ status: 400 })
   })
 
-  it("returns pokemon details from repository", async () => {
-    const pokemon = {
-      id: 1,
-      name: "bulbasaur",
-      height: 7,
-      weight: 69,
-      imageUrl: "http://example.com/img.png",
-      types: ["grass", "poison"],
-    }
-    mockFetchPokemonByName.mockResolvedValueOnce(pokemon)
+  it("prefetches details and returns null", async () => {
+    const queryClient = new QueryClient()
+    const spy = vi.spyOn(queryClient, "prefetchQuery").mockResolvedValue()
 
-    const result = await clientLoader({
+    const loader = clientLoader(queryClient)
+    const result = await loader({
       params: { name: "Bulbasaur" },
     } as unknown as any)
 
-    expect(mockFetchPokemonByName).toHaveBeenCalledWith("Bulbasaur")
-    expect(result).toEqual({ pokemon })
+    expect(spy).toHaveBeenCalledTimes(1)
+    const call = spy.mock.calls[0]?.[0]
+    expect(call?.queryKey).toEqual(["pokemon", "detail", "Bulbasaur"])
+    expect(typeof call?.queryFn).toBe("function")
+    expect(result).toBeNull()
   })
 
   it("propagates repository errors", async () => {
+    const queryClient = new QueryClient()
     const error = new Error("boom")
-    mockFetchPokemonByName.mockRejectedValueOnce(error)
+    vi.spyOn(queryClient, "prefetchQuery").mockRejectedValue(error)
 
+    const loader = clientLoader(queryClient)
     await expect(
-      clientLoader({ params: { name: "mew" } } as unknown as any),
+      loader({ params: { name: "mew" } } as unknown as any),
     ).rejects.toBe(error)
   })
 })

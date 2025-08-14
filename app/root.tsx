@@ -1,4 +1,9 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query"
 import { I18nextProvider, useTranslation } from "react-i18next"
 import {
   isRouteErrorResponse,
@@ -32,7 +37,18 @@ export const links: Route.LinksFunction = () => [
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const queryClient = new QueryClient()
+  const queryClient = new QueryClient({
+    queryCache: new QueryCache({
+      onError: (error: any) => {
+        console.error(JSON.stringify(error))
+      },
+    }),
+    mutationCache: new MutationCache({
+      onError: (error: any) => {
+        console.error(JSON.stringify(error))
+      },
+    }),
+  })
   return (
     <html lang={i18n.language}>
       <head>

@@ -1,41 +1,28 @@
+import { QueryClient } from "@tanstack/react-query"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-const { mockFetchPokemonList } = vi.hoisted(() => ({
-  mockFetchPokemonList: vi.fn(),
-}))
-
-vi.mock("~/routes/pokemon/repositories/pokemon", () => ({
-  pokemonRepository: {
-    fetchPokemonList: mockFetchPokemonList,
-    fetchPokemonByName: vi.fn(),
-  },
-}))
 
 import { clientLoader } from "~/routes/pokemon/index"
 
-describe("pokemon/index clientLoader", () => {
+describe("pokemon/index clientLoader (infinite prefetch)", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockFetchPokemonList.mockReset()
   })
 
-  it("returns pokemon list from repository", async () => {
-    const list = [
-      { name: "bulbasaur", url: "https://pokeapi.co/api/v2/pokemon/1/" },
-      { name: "ivysaur", url: "https://pokeapi.co/api/v2/pokemon/2/" },
-    ]
-    mockFetchPokemonList.mockResolvedValueOnce(list)
+  it("prefetches the first page with the default limit", async () => {
+    const queryClient = new QueryClient()
+    const spy = vi
+      .spyOn(queryClient, "prefetchInfiniteQuery")
+      .mockResolvedValue()
 
-    const result = await clientLoader({} as unknown as any)
+    const loader = clientLoader(queryClient)
+    const result = await loader({} as unknown as any)
 
-    expect(mockFetchPokemonList).toHaveBeenCalledWith(12)
-    expect(result).toEqual({ pokemonList: list })
-  })
-
-  it("propagates repository errors", async () => {
-    const error = new Error("network error")
-    mockFetchPokemonList.mockRejectedValueOnce(error)
-
-    await expect(clientLoader({} as unknown as any)).rejects.toBe(error)
+    expect(spy).toHaveBeenCalledTimes(1)
+    const call = spy.mock.calls[0]?.[0]
+    expect(call?.queryKey).toEqual(["pokemon", "list", "infinite", 12])
+    expect(call?.initialPageParam).toBe(0)
+    // We can't assert specific TS-only properties on the options object at runtime
+    expect(typeof call?.queryFn).toBe("function")
+    expect(result).toBeNull()
   })
 })
