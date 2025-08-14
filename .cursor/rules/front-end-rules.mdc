@@ -87,11 +87,13 @@ tests/
 - Strict TypeScript; no `any`
 - DRY: extract shared logic into hooks/utils/shared components
 - Extract oversized components into smaller subcomponents. Keep extracted parts within the current route scope; if reused by sibling pages/components, move to the parent route segment; if reused across features, promote to `app/shared/components/`
+- Extract small, reusable presentational atoms (e.g., badges, chips, pills) into dedicated components within the route segment’s `components/` folder; keep them stateless and style-only. If reused across features, promote to `app/shared/components/` with clear props
+- Extract cohesive presentational sections (e.g., Abilities list, Stats grid) into small components in the page’s `components/` folder. Inputs are plain data via props; no fetching or mutations. Favor composition in containers/pages
 
 ## React Router v7
 
 - File-based routing by default
-- Loaders: only for URL-driven or must-block-first-paint data, or when needed for handle errors
+- Loaders: only for URL-driven or must-block-first-paint data, or to handle errors
 - Actions: for form submissions/mutations
 - Lazy-load routes by default; use layout routes for guards
 
@@ -100,11 +102,65 @@ tests/
 - Non-blocking/interactive data: fetch in containers/hooks after render via repositories
 - Provide `ErrorBoundary` for failures
 
+### Client Loaders with React Query and Zustand
+
+- Use client loaders to pre-seed React Query cache for data needed immediately on navigation; return `null` from the loader
+- Shape: curry the loader with a `QueryClient`
+  - `export const clientLoader = (queryClient: QueryClient) => async (args) => { ... }`
+- Read ephemeral inputs from Zustand using `store.getState()` only (never React hooks inside loaders)
+  - Example: `const limit = useFeatureStore.getState().listLimit`
+- Validate URL params and throw `new Response(message, { status: 400 })` for client errors
+- Prefetch using repository functions; define route-local stable query keys under a `keys` object
+  - For single page: `queryClient.prefetchQuery({ queryKey, queryFn })`
+  - For infinite lists: `queryClient.prefetchInfiniteQuery({ queryKey, initialPageParam, queryFn, getNextPageParam, pages: 1 })`
+- Do not return fetched data from client loaders; components should call `useQuery`/`useInfiniteQuery` with the same `queryKey` to reuse the cache
+- Keep loaders side-effect free (no store writes). Set store state from components/effects instead
+
+Example (infinite list):
+
+```ts
+const keys = {
+  listInfinite: (limit: number) =>
+    ["entity", "list", "infinite", limit] as const,
+}
+
+export const clientLoader = (queryClient: QueryClient) => async () => {
+  const limit = useUiStore.getState().listLimit
+  await queryClient.prefetchInfiniteQuery({
+    queryKey: keys.listInfinite(limit),
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) =>
+      repository.fetchListPage({ limit, offset: pageParam }),
+    getNextPageParam: (lastPage) => lastPage.nextOffset ?? undefined,
+    pages: 1,
+  })
+  return null
+}
+```
+
+Example (detail by URL param):
+
+```ts
+const keys = { byId: (id: string) => ["entity", "detail", id] as const }
+
+export const clientLoader =
+  (queryClient: QueryClient) =>
+  async ({ params }: Route.ClientLoaderArgs) => {
+    const id = params.id?.toString() ?? ""
+    if (!id) throw new Response("Missing id", { status: 400 })
+    await queryClient.prefetchQuery({
+      queryKey: keys.byId(id),
+      queryFn: () => repository.fetchById(id),
+    })
+    return null
+  }
+```
+
 ### React Query
 
 - Initialize a single `QueryClient` and wrap the app with `QueryClientProvider` in `app/root.tsx`
-- Prefer `useQuery`/`useMutation` for client-side data. Reuse repository functions as query functions
-- Loaders: only for URL-driven or must-block-first-paint data. When a loader fetches data that will be used with React Query, return the data and also pre-populate via `initialData` in `useQuery`
+- Prefer `useQuery`/`useInfiniteQuery`/`useMutation` for client-side data. Reuse repository functions as query functions
+- Client loaders should prefetch into the cache via `prefetchQuery`/`prefetchInfiniteQuery` and return `null`; components then call `useQuery`/`useInfiniteQuery` with the same `queryKey` to consume cached data (no `initialData` needed when prefetching)
 - Define stable query keys under a local `keys` object per route segment (e.g., `const keys = { list: (limit:number)=>["pokemon","list",limit], byName: (name:string)=>["pokemon","detail",name] }`)
 - Handle errors via `ErrorBoundary`; in components, surface loading and empty states
 
@@ -114,7 +170,7 @@ tests/
 - Co-locate feature-specific stores under the route segment in `hooks/` or `state/` folders; promote cross-feature state to `app/shared/stores/`
 - Stores are plain, framework-agnostic modules. No React imports inside stores
 - Keep state minimal and serializable; expose small actions; prefer selectors in components to avoid re-renders
-- Access store outside React via `store.getState()` in loaders or utilities when needed
+- Access store outside React via `store.getState()` in loaders or utilities when needed; avoid writing to stores inside loaders
 - Optional persistence: use middleware only when justified; default to in-memory
 
 ## Styling (Tailwind v4)

@@ -8,7 +8,7 @@ export interface PokemonUiState {
 }
 
 export const usePokemonUiStore = create<PokemonUiState>((set) => ({
-  listLimit: 20,
+  listLimit: 12,
   selectedName: "",
   setListLimit: (limit: number) => set({ listLimit: limit }),
   setSelectedName: (name: string) => set({ selectedName: name }),
