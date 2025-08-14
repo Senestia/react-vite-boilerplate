@@ -4,7 +4,7 @@
 
 Modern, production-ready React boilerplate using React Router 7 Framework Mode (SPA), Vite, Tailwind CSS v4, and TypeScript.
 
-🧭 File-based routing • 🔁 Client loaders • 🧩 Layouts • 🛡️ Error boundaries • 🎨 Theming • 🌍 i18n
+🧭 File-based routing • 🔁 Client loaders + React Query • 📦 Zustand for UI state • 🧩 Layouts • 🛡️ Error boundaries • 🎨 Theming • 🌍 i18n
 
 </div>
 
@@ -12,24 +12,27 @@ Modern, production-ready React boilerplate using React Router 7 Framework Mode (
 
 ## 🚀 Tech Stack
 
-- ⚛️ **React 19**
-- 🧭 **React Router 7 (Framework Mode)** — SPA by default
-- 🏎️ **Vite 6**
-- 🎨 **Tailwind CSS v4**
-- 🔷 **TypeScript** (strict)
-- 🌍 **i18next** (optional)
+- ⚛️ **[React 19](https://react.dev)**
+- 🧭 **[React Router 7 (Framework Mode)](https://reactrouter.com/)** — SPA by default
+- 🏎️ **[Vite 6](https://vitejs.dev/)**
+- 🎨 **[Tailwind CSS v4](https://tailwindcss.com/)**
+- 🔷 **[TypeScript](https://www.typescriptlang.org/)** (strict)
+- 📦 **[@tanstack/react-query](https://tanstack.com/query/latest)**
+- 🗂️ **[Zustand](https://docs.pmnd.rs/zustand/getting-started/introduction)** (ephemeral UI state)
+- 🌍 **[i18next](https://www.i18next.com/)** (optional)
 
 ## ✨ Highlights
 
 - **SPA mode** with React Router 7 Framework Mode (no SSR)
 - **File-based routing** with segment layouts and dynamic routes
-- **clientLoader/ErrorBoundary** per-route for great UX
-- **Centralized HTTP** client and repositories (no side effects)
+- **Client loaders** that pre-seed React Query cache; components read via `useQuery`/`useInfiniteQuery`
+- **Zustand** for ephemeral UI/app state only (no server entities)
+- **Centralized HTTP** clients and typed repositories (no side effects)
 - **Tailwind v4** theme-ready styles (light/dark)
 
 ## 📁 Folder Structure
 
-From our front-end rules, routes and tests are organized like this:
+Routes and tests follow the rules in `front-end-rules`:
 
 ```
 app/routes/
@@ -96,47 +99,96 @@ export default [
 ] satisfies RouteConfig
 ```
 
-### 📦 Index route with client loader
+### 🧱 App root providers
+
+`app/root.tsx`
+
+```tsx
+import { QueryClientProvider } from "@tanstack/react-query"
+import { I18nextProvider } from "react-i18next"
+import i18n from "./shared/utils/i18n"
+import { queryClient } from "./shared/utils/queryClient"
+
+export function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang={i18n.language}>
+      <body>
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+        </QueryClientProvider>
+      </body>
+    </html>
+  )
+}
+```
+
+### 📦 List route with client loader + React Query + Zustand
 
 `app/routes/pokemon/index.tsx`
 
 ```tsx
+import { QueryClient } from "@tanstack/react-query"
 import type { Route } from "./+types/index"
+import { PokemonExplorer } from "./containers/PokemonExplorer"
 import { pokemonRepository } from "./repositories/pokemon"
+import { usePokemonUiStore } from "./state/uiStore"
 
-export async function clientLoader(_args: Route.ClientLoaderArgs) {
-  const pokemonList = await pokemonRepository.fetchPokemonList(12)
-  return { pokemonList }
+const keys = {
+  listInfinite: (limit: number) =>
+    ["pokemon", "list", "infinite", limit] as const,
 }
 
-export default function PokemonRoute({ loaderData }: Route.ComponentProps) {
-  const { pokemonList } = loaderData
-  // render with a container/component
-  // return <PokemonExplorer pokemonList={pokemonList} />
-  return <div>{pokemonList.length} items</div>
+export const clientLoader =
+  (queryClient: QueryClient) => async (_args: Route.ClientLoaderArgs) => {
+    const limit = usePokemonUiStore.getState().listLimit
+    await queryClient.prefetchInfiniteQuery({
+      queryKey: keys.listInfinite(limit),
+      initialPageParam: 0,
+      queryFn: ({ pageParam }) =>
+        pokemonRepository.fetchPokemonListPage({ limit, offset: pageParam }),
+      getNextPageParam: (lastPage) => lastPage.nextOffset ?? undefined,
+      pages: 1,
+    })
+    return null
+  }
+
+export default function PokemonRoute() {
+  return <PokemonExplorer />
 }
 ```
 
-### 🧭 Dynamic route with params + loader
+### 🧭 Dynamic route with params + client loader prefetch
 
 `app/routes/pokemon/$name/index.tsx`
 
 ```tsx
+import { QueryClient, useQuery } from "@tanstack/react-query"
+import { useParams } from "react-router"
 import type { Route } from "./+types/index"
 import { pokemonRepository } from "../repositories/pokemon"
 
-export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-  const name = params.name?.toString() ?? ""
-  if (!name) throw new Response("Missing pokemon name", { status: 400 })
-  const pokemon = await pokemonRepository.fetchPokemonByName(name)
-  return { pokemon }
-}
+const keys = { byName: (name: string) => ["pokemon", "detail", name] as const }
 
-export default function PokemonDetailsRoute({
-  loaderData,
-}: Route.ComponentProps) {
-  const { pokemon } = loaderData
-  return <div>{pokemon.name}</div>
+export const clientLoader =
+  (queryClient: QueryClient) =>
+  async ({ params }: Route.ClientLoaderArgs) => {
+    const name = params.name?.toString() ?? ""
+    if (!name) throw new Response("Missing pokemon name", { status: 400 })
+    await queryClient.prefetchQuery({
+      queryKey: keys.byName(name),
+      queryFn: () => pokemonRepository.fetchPokemonByName(name),
+    })
+    return null
+  }
+
+export default function PokemonDetailsRoute() {
+  const { name = "" } = useParams<{ name: string }>()
+  const { data } = useQuery({
+    queryKey: keys.byName(name),
+    queryFn: () => pokemonRepository.fetchPokemonByName(name),
+    enabled: Boolean(name),
+  })
+  return data ? <div>{data.name}</div> : null
 }
 ```
 
@@ -162,7 +214,7 @@ export default function AppLayout() {
 
 ### 🛡️ Error boundaries
 
-Each route (or layout) can export an `ErrorBoundary`. Example:
+Each route (or layout) can export an `ErrorBoundary`.
 
 ```tsx
 import type { Route } from "./+types/index"
@@ -210,16 +262,74 @@ export const pokemonHttp: AxiosInstance = createHttpClient(POKEMON_API_BASE_URL)
 
 ```ts
 import { pokemonHttp } from "~/shared/utils/http"
+import { toHttpError } from "~/shared/utils/httpError"
 
-async function fetchPokemonList(limit: number) {
-  const { data } = await pokemonHttp.get<{ results: { name: string }[] }>(
-    "/pokemon",
-    { params: { limit } },
-  )
-  return data.results
+export interface PokemonListPageResult {
+  items: { name: string }[]
+  nextOffset: number | null
 }
 
-export const pokemonRepository = { fetchPokemonList }
+async function fetchPokemonListPage(params: {
+  limit: number
+  offset: number
+}): Promise<PokemonListPageResult> {
+  const { limit, offset } = params
+  try {
+    const { data } = await pokemonHttp.get<{
+      results: { name: string }[]
+      next?: string | null
+    }>("/pokemon", { params: { limit, offset } })
+    let nextOffset: number | null = null
+    if (data?.next) {
+      try {
+        const nextUrl = new URL(data.next)
+        const offsetParam = nextUrl.searchParams.get("offset")
+        nextOffset = offsetParam ? Number(offsetParam) : null
+        if (Number.isNaN(nextOffset)) nextOffset = null
+      } catch {
+        nextOffset = null
+      }
+    }
+    return { items: data.results ?? [], nextOffset }
+  } catch (error) {
+    throw toHttpError(error)
+  }
+}
+
+async function fetchPokemonByName(name: string) {
+  try {
+    const { data } = await pokemonHttp.get(
+      `/pokemon/${encodeURIComponent(name.toLowerCase())}`,
+    )
+    return { id: data.id, name: data.name }
+  } catch (error) {
+    throw toHttpError(error)
+  }
+}
+
+export const pokemonRepository = { fetchPokemonListPage, fetchPokemonByName }
+```
+
+## 🗂️ Zustand (UI state)
+
+`app/routes/pokemon/state/uiStore.ts`
+
+```ts
+import { create } from "zustand"
+
+export interface PokemonUiState {
+  listLimit: number
+  selectedName: string
+  setListLimit: (limit: number) => void
+  setSelectedName: (name: string) => void
+}
+
+export const usePokemonUiStore = create<PokemonUiState>((set) => ({
+  listLimit: 12,
+  selectedName: "",
+  setListLimit: (limit: number) => set({ listLimit: limit }),
+  setSelectedName: (name: string) => set({ selectedName: name }),
+}))
 ```
 
 ## 🧪 Getting Started
