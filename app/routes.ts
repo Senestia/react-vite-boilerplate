@@ -12,6 +12,7 @@ export default [
       index("routes/pokemon/index.tsx"),
       route(":name", "routes/pokemon/$name/index.tsx"),
     ]),
+    route("/wizard", "routes/wizard/index.tsx"),
     route("*", "routes/notFound/index.tsx"),
   ]),
 ] satisfies RouteConfig

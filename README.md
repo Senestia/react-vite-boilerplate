@@ -2,9 +2,9 @@
 
 # ⚡️ React Vite Boilerplate (RR7 SPA)
 
-Modern, production-ready React boilerplate using React Router 7 Framework Mode (SPA), Vite, Tailwind CSS v4, and TypeScript.
+Modern, production-ready React boilerplate using React Router 7 Framework Mode (SPA), Redux Toolkit + RTK Query, Vite, Tailwind CSS v4, and TypeScript.
 
-🧭 File-based routing • 🔁 Client loaders • 🧩 Layouts • 🛡️ Error boundaries • 🎨 Theming • 🌍 i18n
+🧭 File-based routing • 🗄️ Redux Toolkit • 🔄 Infinite scroll • 🛡️ Error boundaries • 🎨 Theming • 🌍 i18n
 
 </div>
 
@@ -17,6 +17,7 @@ Modern, production-ready React boilerplate using React Router 7 Framework Mode (
 - 🏎️ **Vite 6**
 - 🎨 **Tailwind CSS v4**
 - 🔷 **TypeScript** (strict)
+- 🗄️ **Redux Toolkit** with RTK Query for state management & data fetching
 - 🌍 **i18next** (optional)
 
 ## ✨ Highlights
@@ -24,7 +25,8 @@ Modern, production-ready React boilerplate using React Router 7 Framework Mode (
 - **SPA mode** with React Router 7 Framework Mode (no SSR)
 - **File-based routing** with segment layouts and dynamic routes
 - **clientLoader/ErrorBoundary** per-route for great UX
-- **Centralized HTTP** client and repositories (no side effects)
+- **Redux Toolkit + RTK Query** for unified state management and data fetching
+- **Infinite scroll** implementation with automatic caching and request deduplication
 - **Tailwind v4** theme-ready styles (light/dark)
 
 ## 📁 Folder Structure
@@ -48,7 +50,7 @@ app/routes/
 │   ├── hooks/                # Page-specific custom hooks
 │   ├── services/             # Page-specific API services
 │   ├── constants/            # Page-specific constants and static data
-│   ├── repositories/         # Page-specific data provider definitions
+│   ├── slices/               # Page-specific Redux slices (RTK Query APIs)
 │   ├── types/                # Page-specific TypeScript definitions
 │   └── utils/                # Page-specific utility functions
 └── layout/
@@ -96,47 +98,56 @@ export default [
 ] satisfies RouteConfig
 ```
 
-### 📦 Index route with client loader
+### 📦 Index route with RTK Query prefetching
 
 `app/routes/pokemon/index.tsx`
 
 ```tsx
 import type { Route } from "./+types/index"
-import { pokemonRepository } from "./repositories/pokemon"
+import { store } from "../../shared/store"
+import { pokemonApi } from "./slices/pokemonApi"
+import { PokemonExplorer } from "./containers/PokemonExplorer"
 
 export async function clientLoader(_args: Route.ClientLoaderArgs) {
-  const pokemonList = await pokemonRepository.fetchPokemonList(12)
-  return { pokemonList }
+  const { ui } = store.getState()
+  const { limit } = ui.pokemonList
+  store.dispatch(
+    pokemonApi.endpoints.getPokemonListPage.initiate(
+      { limit, offset: 0 },
+      { forceRefetch: false },
+    ),
+  )
+  return null
 }
 
-export default function PokemonRoute({ loaderData }: Route.ComponentProps) {
-  const { pokemonList } = loaderData
-  // render with a container/component
-  // return <PokemonExplorer pokemonList={pokemonList} />
-  return <div>{pokemonList.length} items</div>
+export default function PokemonRoute() {
+  return <PokemonExplorer />
 }
 ```
 
-### 🧭 Dynamic route with params + loader
+### 🧭 Dynamic route with RTK Query prefetching
 
 `app/routes/pokemon/$name/index.tsx`
 
 ```tsx
 import type { Route } from "./+types/index"
-import { pokemonRepository } from "../repositories/pokemon"
+import { store } from "../../../shared/store"
+import { pokemonApi } from "../slices/pokemonApi"
+import { PokemonDetailsContainer } from "./containers/PokemonDetailsContainer"
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const name = params.name?.toString() ?? ""
   if (!name) throw new Response("Missing pokemon name", { status: 400 })
-  const pokemon = await pokemonRepository.fetchPokemonByName(name)
-  return { pokemon }
+  store.dispatch(
+    pokemonApi.endpoints.getPokemonByName.initiate(name, {
+      forceRefetch: false,
+    }),
+  )
+  return null
 }
 
-export default function PokemonDetailsRoute({
-  loaderData,
-}: Route.ComponentProps) {
-  const { pokemon } = loaderData
-  return <div>{pokemon.name}</div>
+export default function PokemonDetailsRoute() {
+  return <PokemonDetailsContainer />
 }
 ```
 
@@ -176,50 +187,149 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 }
 ```
 
-## 🔌 Data Layer & HTTP
+## 🗄️ Redux Toolkit + RTK Query Setup
 
-- Endpoints and HTTP clients are centralized and reused across features.
+### 📊 Redux Store Configuration
 
-`app/shared/constants/endpoint.ts`
+`app/shared/store/index.ts`
 
 ```ts
-export const POKEMON_API_BASE_URL = "https://pokeapi.co/api/v2"
+import { configureStore } from "@reduxjs/toolkit"
+import { setupListeners } from "@reduxjs/toolkit/query"
+import { pokemonApi } from "~/routes/pokemon/slices/pokemonApi"
+import { pokemonUiSlice } from "~/routes/pokemon/slices/pokemonUiSlice"
+import { wizardUiSlice } from "~/routes/wizard/slices/wizardUiSlice"
+
+export const store = configureStore({
+  reducer: {
+    [pokemonApi.reducerPath]: pokemonApi.reducer,
+    pokemonUi: pokemonUiSlice.reducer,
+    wizardUi: wizardUiSlice.reducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(pokemonApi.middleware),
+})
+
+setupListeners(store.dispatch)
+
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
+export type AppStore = typeof store
 ```
 
-`app/shared/utils/http.ts`
+### 🔧 RTK Query API Slice
+
+`app/routes/pokemon/slices/pokemonApi.ts`
 
 ```ts
-import axios, { type AxiosInstance } from "axios"
-import { POKEMON_API_BASE_URL } from "../constants/endpoint"
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
+import type { PokemonDetail, PokemonListPage } from "~/routes/pokemon/types"
 
-export function createHttpClient(baseURL: string): AxiosInstance {
-  return axios.create({
-    baseURL,
+export const pokemonApi = createApi({
+  reducerPath: "pokemonApi",
+  baseQuery: fetchBaseQuery({
+    baseUrl: "https://pokeapi.co/api/v2",
     timeout: 10000,
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-  })
-}
+  }),
+  tagTypes: ["Pokemon", "PokemonList"],
+  endpoints: (builder) => ({
+    getPokemonListPage: builder.query<
+      PokemonListPage,
+      { limit: number; offset: number }
+    >({
+      query: ({ limit, offset }) => ({
+        url: "/pokemon",
+        params: { limit, offset },
+      }),
+      transformResponse: (response: any, _meta, args) => ({
+        data: response.results,
+        hasMore: response.next !== null,
+        nextOffset: response.next ? args.offset + args.limit : null,
+        totalCount: response.count,
+      }),
+    }),
+    getPokemonByName: builder.query<PokemonDetail, string>({
+      query: (name) => `/pokemon/${encodeURIComponent(name.toLowerCase())}`,
+      transformResponse: (response: any): PokemonDetail => ({
+        id: response.id,
+        name: response.name,
+        height: response.height,
+        weight: response.weight,
+        imageUrl: response.sprites?.front_default ?? null,
+        types:
+          response.types?.map((t: any) => t.type?.name).filter(Boolean) ?? [],
+      }),
+    }),
+  }),
+})
 
-export const pokemonHttp: AxiosInstance = createHttpClient(POKEMON_API_BASE_URL)
+export const { useGetPokemonListPageQuery, useGetPokemonByNameQuery } =
+  pokemonApi
 ```
 
-`app/routes/pokemon/repositories/pokemon.ts`
+### 🏗️ Redux Provider Setup
 
-```ts
-import { pokemonHttp } from "~/shared/utils/http"
+`app/root.tsx`
 
-async function fetchPokemonList(limit: number) {
-  const { data } = await pokemonHttp.get<{ results: { name: string }[] }>(
-    "/pokemon",
-    { params: { limit } },
+```tsx
+import { Provider } from "react-redux"
+import { store } from "./shared/store"
+
+export function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <html>
+      <body>
+        <Provider store={store}>{children}</Provider>
+      </body>
+    </html>
   )
-  return data.results
 }
+```
 
-export const pokemonRepository = { fetchPokemonList }
+### 🔄 Infinite Scroll Container Example
+
+`app/routes/pokemon/containers/PokemonExplorer.tsx`
+
+```tsx
+import { useCallback, useEffect, useState } from "react"
+import { useAppDispatch, useAppSelector } from "~/shared/store/hooks"
+import { useGetPokemonListPageQuery } from "../slices/pokemonApi"
+
+export function PokemonExplorer() {
+  const { limit, hasMore } = useAppSelector((state) => state.pokemonUi)
+  const [allPokemon, setAllPokemon] = useState([])
+  const [currentOffset, setCurrentOffset] = useState(0)
+
+  const { data, isLoading } = useGetPokemonListPageQuery({
+    limit,
+    offset: currentOffset,
+  })
+
+  useEffect(() => {
+    if (data) {
+      setAllPokemon((prev) =>
+        currentOffset === 0 ? data.data : [...prev, ...data.data],
+      )
+    }
+  }, [data, currentOffset])
+
+  const loadMore = useCallback(() => {
+    if (hasMore && !isLoading) {
+      setCurrentOffset((prev) => prev + limit)
+    }
+  }, [hasMore, isLoading, limit])
+
+  return (
+    <div>
+      {allPokemon.map((pokemon) => (
+        <div key={pokemon.name}>{pokemon.name}</div>
+      ))}
+      {/* Infinite scroll - automatically loads more when scrolling near bottom */}
+      {isLoadingMore && <div>Loading more Pokemon...</div>}
+      {!hasMore && <div>You&apos;ve seen all the Pokemon!</div>}
+    </div>
+  )
+}
 ```
 
 ## 🧪 Getting Started

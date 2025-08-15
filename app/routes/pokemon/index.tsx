@@ -1,17 +1,28 @@
 import { isRouteErrorResponse } from "react-router"
 import ErrorView from "../../shared/components/ErrorView"
+import { store } from "../../shared/store"
 import type { Route } from "./+types/index"
 import { PokemonExplorer } from "./containers/PokemonExplorer"
-import { pokemonRepository } from "./repositories/pokemon"
+import { pokemonApi } from "./slices/pokemonApi"
+import { resetPokemonList } from "./slices/pokemonUiSlice"
 
 export async function clientLoader(_args: Route.ClientLoaderArgs) {
-  const pokemonList = await pokemonRepository.fetchPokemonList(12)
-  return { pokemonList }
+  // Reset the pokemon list state for a fresh start
+  store.dispatch(resetPokemonList())
+
+  const { pokemonUi } = store.getState()
+  const { limit } = pokemonUi
+  store.dispatch(
+    pokemonApi.endpoints.getPokemonListPage.initiate(
+      { limit, offset: 0 },
+      { forceRefetch: false },
+    ),
+  )
+  return null
 }
 
-export default function PokemonRoute({ loaderData }: Route.ComponentProps) {
-  const { pokemonList } = loaderData
-  return <PokemonExplorer pokemonList={pokemonList} />
+export default function PokemonRoute() {
+  return <PokemonExplorer />
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

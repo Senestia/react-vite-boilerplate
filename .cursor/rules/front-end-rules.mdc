@@ -11,12 +11,13 @@ Concise, enforceable rules for building front-end features in this repo.
 
 - Vite + React Router v7 (Framework Mode, no SSR) + Tailwind CSS v4 + TypeScript
 - Follow React Router v7 best practices; use file-based routing under `app/`
+- Use Redux Toolkit with RTK Query for state management and data fetching
 
 ## Structure & Organization
 
 - Route entry per folder: `index.tsx`
 - Segment layout per folder: `layout.tsx` (presentational only; one per segment)
-- Page folders may include: `components/`, `containers/`, `hooks/`, `services/`, `constants/`, `repositories/`, `types/`, `utils/`
+- Page folders may include: `components/`, `containers/`, `hooks/`, `services/`, `constants/`, `repositories/`, `slices/`, `types/`, `utils/`
 - Shared, reusable assets live in `app/shared/`
 - Tests live under `tests/`, mirroring feature structure
 
@@ -38,6 +39,7 @@ app/routes/
 │   ├── services/             # Page-specific API services
 │   ├── constants/            # Page-specific constants and static data
 │   ├── repositories/         # Page-specific data provider definitions
+│   ├── slices/               # Page-specific Redux slices
 │   ├── types/                # Page-specific TypeScript definitions
 │   └── utils/                # Page-specific utility functions
 └── layout/
@@ -46,84 +48,132 @@ tests/
 └── shared/
 ```
 
-## Repositories & HTTP
+## Architecture Patterns
 
-- Repositories are pure data providers (no React). Return typed models and propagate errors. No side effects
-- Place repositories under `app/routes/[page]/repositories/` or `app/shared/repositories/` (if shared)
-- Centralize HTTP clients and endpoints in `app/shared/utils/` and `app/shared/constants/`. Do not create feature-local Axios instances
+### Components vs Containers vs Custom Hooks
 
-## Barrels (index.ts)
+- **Components**: presentational only (no data fetching/business logic, minimal state)
+- **Containers**: compose components and custom hooks; handle UI-specific concerns (refs, Intersection Observers)
+- **Custom Hooks**: business logic, Redux state management, RTK Query calls, complex side effects
+- Never mix fetching and UI in the same file; prefer custom hooks for business logic encapsulation
 
-- Use only when a folder has 3+ related peers or to expose a module’s public API
-- One barrel per folder; export-only (no side effects); no chained re-exports
-- Do not re-export across route segment boundaries
-- No barrels in `components/` or `containers/`
-- Inside a folder with a barrel, source files must import siblings directly (never from the barrel) and must not re-export themselves
+### Custom Hook Organization
 
-### Types organization
+- Place in `hooks/` folders within route segments
+- Name with `use` prefix + clear functionality (`useInfiniteScroll`, `usePokemonFilters`)
+- Export from barrel files when folder has 3+ hooks
+- Pure business logic only - no JSX, refs, or DOM manipulation
+- One primary concern per hook; avoid deep nesting
 
-- Split type definitions into focused files by model (e.g., `pokemonListItem.ts`, `pokemonDetail.ts`)
-- Add a local barrel in the `types/` folder to expose the public types API
-- Import from the folder barrel within the route segment (e.g., `import type { PokemonDetail } from "../types"`)
+## Code Quality & Organization
 
-## Naming
-
-- Components: PascalCase (e.g., `UserProfile.tsx`)
-- Hooks: camelCase starting with `use` (e.g., `useUserData.ts`)
-- Services: camelCase ending with `Service` (e.g., `userService.ts`)
-- Barrels are always named `index.ts`
-
-## Components vs Containers
-
-- Components: presentational only (no data fetching/business logic)
-- Containers: state, effects, API calls; compose components
-- Never mix fetching and UI in the same file
-
-## Code Quality
+### File Structure
 
 - Small, focused files (components ≤ 150 lines; any file ≤ 500 lines)
-- Destructure props/state; prefer modern ES features and async/await
 - Strict TypeScript; no `any`
-- DRY: extract shared logic into hooks/utils/shared components
-- Extract oversized components into smaller subcomponents. Keep extracted parts within the current route scope; if reused by sibling pages/components, move to the parent route segment; if reused across features, promote to `app/shared/components/`
+- Extract oversized components into subcomponents within current route scope
+- Promote to `app/shared/` only when reused across features
 
-## React Router v7
+### Barrels (index.ts)
 
-- File-based routing by default
-- Loaders: only for URL-driven or must-block-first-paint data, or when needed for  handle errors
+- Use only when folder has 3+ related peers or to expose module's public API
+- One barrel per folder; export-only; no chained re-exports across route boundaries
+- No barrels in `components/` or `containers/`
+- Source files import siblings directly (never from barrel)
+
+### Types Organization
+
+- Split into focused files by model (`pokemonListItem.ts`, `pokemonDetail.ts`)
+- Add barrel in `types/` folder to expose public API
+- Import from folder barrel within route segment
+
+### Naming Conventions
+
+- Components: PascalCase (`UserProfile.tsx`)
+- Hooks: camelCase with `use` prefix (`useUserData.ts`)
+- Services: camelCase with `Service` suffix (`userService.ts`)
+- Barrels: always `index.ts`
+
+## Data Management
+
+### HTTP & Repositories
+
+- Repositories are pure data providers (no React); return typed models and propagate errors
+- Place under `app/routes/[page]/repositories/` or `app/shared/repositories/`
+- Centralize HTTP clients in `app/shared/utils/` and endpoints in `app/shared/constants/`
+- Prefer RTK Query API endpoints in slice files over separate repository functions
+
+### Client Loaders
+
+- Use for RTK Query prefetching on navigation; always return `null`
+- Curry with Redux store: `export const clientLoader = (store: AppStore) => async (args) => { ... }`
+- Read state via `store.getState()` only (no React hooks)
+- Validate URL params; throw `new Response(message, { status: 400 })` for errors
+- Prefetch with `forceRefetch: false`
+
+### RTK Query
+
+- Define API endpoints using `createApi` with `fetchBaseQuery`
+- Organize endpoints by feature domain in `slices/` folders
+- Use generated hooks in components (`useGetEntitiesQuery`, `useUpdateEntityMutation`)
+- Handle errors via `ErrorBoundary` and RTK Query error states
+
+## State Management (Redux Toolkit)
+
+### Organization
+
+- Co-locate feature slices in route segment `slices/` folders
+- Promote cross-feature slices to `app/shared/slices/`
+- Use `createSlice` with Immer for immutable updates
+- Configure store with RTK Query API slices
+
+### Best Practices
+
+- **Never mix local state with Redux state** - single source of truth
+- **Encapsulate business logic in custom hooks** - avoid direct `useAppDispatch` in components
+- **Custom hooks return clean interfaces** - only what components need for rendering
+- **Descriptive action names** - domain-specific (`setInitialPokemonList` vs `updateArray`)
+
+### What to Share vs Keep Local
+
+**Share:**
+
+- Generic components across features
+- Cross-cutting utilities (HTTP, validation)
+- Global app state (user session, theme)
+- Common types and constants
+
+**Keep Local:**
+
+- Feature-specific UI state (pagination, filters)
+- Feature-specific business logic
+- Component state for single features
+
+## React Router v7 & Data Loading
+
+- File-based routing; lazy-load routes by default
+- Loaders: only for URL-driven or must-block-first-paint data
 - Actions: for form submissions/mutations
-- Lazy-load routes by default; use layout routes for guards
-
-## Data Loading
-
-- Non-blocking/interactive data: fetch in containers/hooks after render via repositories
+- Non-blocking data: fetch in containers/hooks via RTK Query
 - Provide `ErrorBoundary` for failures
 
-## Styling (Tailwind v4)
+## Development Standards
 
-- Prefer utilities over custom CSS; create reusable variants
-- Mobile-first; use semantic HTML; avoid unnecessary wrapper elements
-- Organize CSS in `app.css`, `components.css`, `utilities.css`
+### React Practices
 
-## React Practices
-
-- Functional components with explicit prop interfaces; use default parameters instead of `defaultProps`
-- Memoize (`React.memo`, `useMemo`, `useCallback`) when it measurably prevents re-renders
+- Functional components with explicit prop interfaces
+- Use default parameters instead of `defaultProps`
+- Memoize only when it measurably prevents re-renders
 - Lists require stable, unique `key` props
 
-## AI-Friendly Patterns
+### Styling (Tailwind v4)
 
-- Descriptive names; explicit types for public APIs; JSDoc for complex/public modules
-- Single-purpose files; predictable folder layout; explicit exports and dependencies
+- Prefer utilities over custom CSS; mobile-first approach
+- Use semantic HTML; avoid unnecessary wrapper elements
+- Organize CSS in `app.css`, `components.css`, `utilities.css`
 
-## Testing
+### Testing & Performance
 
-- Tests under `tests/`, mirroring features; name files `*.test.tsx` or `*.spec.tsx`
-- Use React Testing Library; test behavior; mock external deps only
-- Aim for ≥ 80% coverage on critical paths; use factories/fixtures
-
-## Performance & Monitoring
-
-- Code-split at route level by default; split large components when helpful
-- Optimize assets; leverage browser caching; monitor bundle sizes
-- Track Core Web Vitals; enable error tracking; maintain a performance budget; run periodic perf/a11y audits
+- Tests under `tests/` mirroring features; use React Testing Library
+- Code-split at route level; monitor bundle sizes
+- Track Core Web Vitals; maintain performance budget

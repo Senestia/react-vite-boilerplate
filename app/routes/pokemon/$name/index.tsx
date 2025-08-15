@@ -1,6 +1,7 @@
 import { isRouteErrorResponse } from "react-router"
 import ErrorView from "../../../shared/components/ErrorView"
-import { pokemonRepository } from "../repositories/pokemon"
+import { store } from "../../../shared/store"
+import { pokemonApi } from "../slices/pokemonApi"
 import type { Route } from "./+types/index"
 import { PokemonDetailsContainer } from "./containers/PokemonDetailsContainer"
 
@@ -9,15 +10,16 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   if (!name) {
     throw new Response("Missing pokemon name", { status: 400 })
   }
-  const pokemon = await pokemonRepository.fetchPokemonByName(name)
-  return { pokemon }
+  store.dispatch(
+    pokemonApi.endpoints.getPokemonByName.initiate(name, {
+      forceRefetch: false,
+    }),
+  )
+  return null
 }
 
-export default function PokemonDetailsRoute({
-  loaderData,
-}: Route.ComponentProps) {
-  const { pokemon } = loaderData
-  return <PokemonDetailsContainer pokemon={pokemon} />
+export default function PokemonDetailsRoute() {
+  return <PokemonDetailsContainer />
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

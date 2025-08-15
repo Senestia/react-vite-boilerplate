@@ -6,9 +6,9 @@ export interface RawPokemonDetailApiResponse {
   sprites?: {
     front_default?: string | null
   }
-  types: {
-    type: {
-      name: string
+  types?: {
+    type?: {
+      name?: string
     }
   }[]
 }

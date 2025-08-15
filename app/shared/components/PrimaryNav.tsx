@@ -10,6 +10,7 @@ export function PrimaryNav() {
   const navItems: NavItem[] = [
     { to: "/", label: "Home", end: true },
     { to: "/pokemon", label: "Pokemon" },
+    { to: "/wizard", label: "Wizard World" },
   ]
 
   return (

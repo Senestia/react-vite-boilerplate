@@ -1,4 +1,5 @@
 import { I18nextProvider, useTranslation } from "react-i18next"
+import { Provider } from "react-redux"
 import {
   isRouteErrorResponse,
   Links,
@@ -10,6 +11,7 @@ import {
 
 import type { Route } from "./+types/root"
 import ErrorView from "./shared/components/ErrorView"
+import { store } from "./shared/store"
 import i18n from "./shared/utils/i18n"
 import "./styles/app.css"
 
@@ -40,7 +42,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+        <Provider store={store}>
+          <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+        </Provider>
         <ScrollRestoration />
         <Scripts />
       </body>
