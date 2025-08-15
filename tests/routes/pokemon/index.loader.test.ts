@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { clientLoader } from "~/routes/pokemon/index"
+import { clientLoader } from "~/routes/pokemon/_index"
 
 describe("pokemon/index clientLoader (infinite prefetch)", () => {
   beforeEach(() => {
