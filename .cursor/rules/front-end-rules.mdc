@@ -11,7 +11,7 @@ Concise, enforceable rules for building front-end features in this React Router 
 
 - Route entry per folder: `index.tsx`
 - Segment layout per folder: `layout.tsx` (presentational only; one per segment)
-- Page folders may include: `components/`, `containers/`, `hooks/`, `services/`, `constants/`, `repositories/`, `types/`, `utils/`
+- Page folders may include: `components/`, `containers/`, `hooks/`, `services/`, `constants/`, `repositories/`, `stores/`, `types/`, `utils/`
 - Shared, reusable assets live in `app/shared/`
 - Tests live under `tests/`, mirroring feature structure
 
@@ -33,6 +33,7 @@ app/routes/
 │   ├── services/             # Page-specific API services
 │   ├── constants/            # Page-specific constants and static data
 │   ├── repositories/         # Page-specific data provider definitions
+│   ├── stores/               # Page-specific Zustand stores
 │   ├── types/                # Page-specific TypeScript definitions
 │   └── utils/                # Page-specific utility functions
 └── layout/
@@ -86,7 +87,7 @@ tests/
 **Zustand State**
 
 - For ephemeral UI state only (filters, toggles); use React Query for server data
-- Co-locate stores in `hooks/` or `state/` folders; promote to `app/shared/stores/` if shared
+- Co-locate stores in `stores/` folders; promote to `app/shared/stores/` if shared across routes
 - Plain modules (no React imports); minimal serializable state; small actions
 
 **Client Loaders**

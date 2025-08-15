@@ -4,7 +4,7 @@ import { isRouteErrorResponse, useParams } from "react-router"
 import ErrorView from "../../../shared/components/ErrorView"
 import { pokemonDetailKeys, usePokemonDetail } from "../hooks"
 import { pokemonRepository } from "../repositories/pokemon"
-import { usePokemonUiStore } from "../state/uiStore"
+import { usePokemonUiStore } from "../stores/uiStore"
 import type { Route } from "./+types/index"
 import { PokemonDetailsContainer } from "./containers/PokemonDetailsContainer"
 

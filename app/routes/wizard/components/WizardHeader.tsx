@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react"
-import { useWizardUiStore } from "../state/uiStore"
+import { useWizardUiStore } from "../stores/uiStore"
 
 interface Props {
   types: string[]

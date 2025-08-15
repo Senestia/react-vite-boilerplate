@@ -4,7 +4,7 @@ import ErrorView from "../../shared/components/ErrorView"
 import type { Route } from "./+types/index"
 import { PokemonExplorer } from "./containers/PokemonExplorer"
 import { pokemonRepository } from "./repositories/pokemon"
-import { usePokemonUiStore } from "./state/uiStore"
+import { usePokemonUiStore } from "./stores/uiStore"
 
 const keys = {
   listInfinite: (limit: number) =>

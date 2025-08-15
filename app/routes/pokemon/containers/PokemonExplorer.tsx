@@ -1,7 +1,7 @@
 import { PokemonHeader } from "../components/PokemonHeader"
 import { PokemonList } from "../components/PokemonList"
 import { useIntersectionObserver, usePokemonInfiniteQuery } from "../hooks"
-import { usePokemonUiStore } from "../state/uiStore"
+import { usePokemonUiStore } from "../stores/uiStore"
 
 export function PokemonExplorer() {
   const limit = usePokemonUiStore(

@@ -1,7 +1,7 @@
 import { SpellList } from "../components/SpellList"
 import { WizardHeader } from "../components/WizardHeader"
 import { useSpellSearch, useSpellTypes } from "../hooks"
-import { useWizardUiStore } from "../state/uiStore"
+import { useWizardUiStore } from "../stores/uiStore"
 
 export function WizardExplorer() {
   const { searchQuery, typeFilter } = useWizardUiStore()
