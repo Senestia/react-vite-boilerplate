@@ -1,46 +1,15 @@
-import { useQuery } from "@tanstack/react-query"
-import { useMemo } from "react"
 import { SpellList } from "../components/SpellList"
 import { WizardHeader } from "../components/WizardHeader"
-import { wizardRepository } from "../repositories/wizard"
+import { useSpellSearch, useSpellTypes } from "../hooks"
 import { useWizardUiStore } from "../state/uiStore"
-import type { Spell } from "../types"
 
 export function WizardExplorer() {
   const { searchQuery, typeFilter } = useWizardUiStore()
 
-  const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
-    queryKey: ["wizard", "spells", searchQuery, typeFilter],
-    queryFn: () =>
-      wizardRepository.searchSpells({ search: searchQuery, type: typeFilter }),
-  })
+  const { items, isLoading, isFetching, errorMessage, refetch } =
+    useSpellSearch(searchQuery, typeFilter)
 
-  const { data: allSpells } = useQuery({
-    queryKey: ["wizard", "spells", "all-types"],
-    queryFn: () => wizardRepository.searchSpells({ pageSize: 2000 }),
-    staleTime: 5 * 60 * 1000,
-  })
-
-  const items: Spell[] = useMemo(() => data ?? [], [data])
-
-  const errorMessage: string | null = isError
-    ? error instanceof Error
-      ? error.message
-      : "Failed to load spells"
-    : null
-
-  const types: string[] = useMemo(() => {
-    const list = Array.isArray(allSpells) ? allSpells : []
-    const unique = Array.from(
-      new Set(
-        list
-          .map((s) => (typeof s.type === "string" ? s.type : ""))
-          .filter((t) => t.trim().length > 0),
-      ),
-    )
-    unique.sort((a, b) => a.localeCompare(b))
-    return unique
-  }, [allSpells])
+  const { types } = useSpellTypes()
 
   return (
     <main className="flex items-center justify-center pt-16 pb-4">

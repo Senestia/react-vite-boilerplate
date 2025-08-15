@@ -1,10 +1,7 @@
-import { useInfiniteQuery } from "@tanstack/react-query"
-import { useEffect, useMemo, useRef } from "react"
 import { PokemonHeader } from "../components/PokemonHeader"
 import { PokemonList } from "../components/PokemonList"
-import { pokemonRepository } from "../repositories/pokemon"
+import { useIntersectionObserver, usePokemonInfiniteQuery } from "../hooks"
 import { usePokemonUiStore } from "../state/uiStore"
-import type { PokemonListItem } from "../types"
 
 export function PokemonExplorer() {
   const limit = usePokemonUiStore(
@@ -12,39 +9,22 @@ export function PokemonExplorer() {
   )
 
   const {
-    data,
+    items,
     isLoading,
     isError,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: ["pokemon", "list", "infinite", limit],
-    initialPageParam: 0,
-    queryFn: ({ pageParam }) =>
-      pokemonRepository.fetchPokemonListPage({ limit, offset: pageParam }),
-    getNextPageParam: (lastPage) => lastPage.nextOffset ?? undefined,
-  })
+  } = usePokemonInfiniteQuery(limit)
 
-  const items: PokemonListItem[] = useMemo(() => {
-    if (!data) return []
-    return data.pages.flatMap((p) => p.items)
-  }, [data])
-
-  const sentinelRef = useRef<HTMLDivElement | null>(null)
-  useEffect(() => {
-    if (!sentinelRef.current) return
-    if (!hasNextPage) return
-    const element = sentinelRef.current
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry) return
-      if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+  const sentinelRef = useIntersectionObserver({
+    onIntersect: () => {
+      if (hasNextPage && !isFetchingNextPage) {
         fetchNextPage()
       }
-    })
-    observer.observe(element)
-    return () => observer.disconnect()
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage])
+    },
+    enabled: hasNextPage && !isFetchingNextPage,
+  })
 
   if (isLoading) return <p>Loading...</p>
   if (isError) throw new Error("Failed to load Pokemon list")
@@ -57,7 +37,7 @@ export function PokemonExplorer() {
         <section className="w-full max-w-4xl">
           <PokemonList items={items} />
           <div ref={sentinelRef} className="flex justify-center py-6">
-            {isFetchingNextPage ? <span>Loading more…</span> : null}
+            {isFetchingNextPage ? <p>Loading more…</p> : null}
             {!hasNextPage ? (
               <span className="text-gray-500">End of list</span>
             ) : null}

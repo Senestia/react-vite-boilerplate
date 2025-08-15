@@ -5,13 +5,7 @@ alwaysApply: false
 
 ## Purpose
 
-Concise, enforceable rules for building front-end features in this repo.
-
-## Tech Stack & Mode
-
-- Vite + React Router v7 (Framework Mode, no SSR) + Tailwind CSS v4 + TypeScript
-- Follow React Router v7 best practices; use file-based routing under `app/`
-- Use React Query for client-side caching/fetching of non-blocking data
+Concise, enforceable rules for building front-end features in this React Router v7 + Vite + Tailwind + TypeScript codebase.
 
 ## Structure & Organization
 
@@ -47,157 +41,108 @@ tests/
 └── shared/
 ```
 
-## Repositories & HTTP
+## Code Architecture
 
-- Repositories are pure data providers (no React). Return typed models and propagate errors. No side effects
-- Place repositories under `app/routes/[page]/repositories/` or `app/shared/repositories/` (if shared)
-- Centralize HTTP clients and endpoints in `app/shared/utils/` and `app/shared/constants/`. Do not create feature-local Axios instances
+**Components vs Containers vs Hooks**
 
-## Barrels (index.ts)
-
-- Use only when a folder has 3+ related peers or to expose a module’s public API
-- One barrel per folder; export-only (no side effects); no chained re-exports
-- Do not re-export across route segment boundaries
-- No barrels in `components/` or `containers/`
-- Inside a folder with a barrel, source files must import siblings directly (never from the barrel) and must not re-export themselves
-
-### Types organization
-
-- Split type definitions into focused files by model (e.g., `pokemonListItem.ts`, `pokemonDetail.ts`)
-- Add a local barrel in the `types/` folder to expose the public types API
-- Import from the folder barrel within the route segment (e.g., `import type { PokemonDetail } from "../types"`)
-
-## Naming
-
-- Components: PascalCase (e.g., `UserProfile.tsx`)
-- Hooks: camelCase starting with `use` (e.g., `useUserData.ts`)
-- Services: camelCase ending with `Service` (e.g., `userService.ts`)
-- Barrels are always named `index.ts`
-
-## Components vs Containers
-
-- Components: presentational only (no data fetching/business logic)
-- Containers: state, effects, API calls; compose components
+- **Components**: presentational only (no fetching, minimal state)
+- **Containers**: compose components + hooks; handle UI concerns (refs, observers)
+- **Custom Hooks**: business logic, state management, side effects
 - Never mix fetching and UI in the same file
+- Extract all React Query logic into custom hooks
+- Create reusable utility hooks for common patterns (intersection observers, form validation)
+- Co-locate hooks in `hooks/` folder; use barrels for 3+ related hooks
 
-## Code Quality
+**Naming Conventions**
 
-- Small, focused files (components ≤ 150 lines; any file ≤ 500 lines)
-- Destructure props/state; prefer modern ES features and async/await
-- Strict TypeScript; no `any`
-- DRY: extract shared logic into hooks/utils/shared components
-- Extract oversized components into smaller subcomponents. Keep extracted parts within the current route scope; if reused by sibling pages/components, move to the parent route segment; if reused across features, promote to `app/shared/components/`
-- Extract small, reusable presentational atoms (e.g., badges, chips, pills) into dedicated components within the route segment’s `components/` folder; keep them stateless and style-only. If reused across features, promote to `app/shared/components/` with clear props
-- Extract cohesive presentational sections (e.g., Abilities list, Stats grid) into small components in the page’s `components/` folder. Inputs are plain data via props; no fetching or mutations. Favor composition in containers/pages
+- Components: PascalCase (`UserProfile.tsx`)
+- Hooks: camelCase with `use` prefix (`useUserData.ts`)
+- Services: camelCase with `Service` suffix (`userService.ts`)
+- Barrels: always `index.ts`
 
-## React Router v7
+**Barrels & Types**
 
-- File-based routing by default
-- Loaders: only for URL-driven or must-block-first-paint data, or to handle errors
-- Actions: for form submissions/mutations
-- Lazy-load routes by default; use layout routes for guards
+- Use barrels only for 3+ related files or public APIs; no chained re-exports
+- No barrels in `components/` or `containers/`
+- Split types into focused files (`pokemonDetail.ts`, `pokemonListItem.ts`)
+- Add barrel in `types/` folder; import from barrel within route segment
 
-## Data Loading
+## Data Management
 
-- Non-blocking/interactive data: fetch in containers/hooks after render via repositories
-- Provide `ErrorBoundary` for failures
+**Repositories & HTTP**
 
-### Client Loaders with React Query and Zustand
+- Pure data providers (no React); return typed models; propagate errors
+- Place in `app/routes/[page]/repositories/` or `app/shared/repositories/`
+- Centralize HTTP clients in `app/shared/utils/` and endpoints in `app/shared/constants/`
 
-- Use client loaders to pre-seed React Query cache for data needed immediately on navigation; return `null` from the loader
-- Shape: curry the loader with a `QueryClient`
-  - `export const clientLoader = (queryClient: QueryClient) => async (args) => { ... }`
-- Read ephemeral inputs from Zustand using `store.getState()` only (never React hooks inside loaders)
-  - Example: `const limit = useFeatureStore.getState().listLimit`
-- Validate URL params and throw `new Response(message, { status: 400 })` for client errors
-- Prefetch using repository functions; define route-local stable query keys under a `keys` object
-  - For single page: `queryClient.prefetchQuery({ queryKey, queryFn })`
-  - For infinite lists: `queryClient.prefetchInfiniteQuery({ queryKey, initialPageParam, queryFn, getNextPageParam, pages: 1 })`
-- Do not return fetched data from client loaders; components should call `useQuery`/`useInfiniteQuery` with the same `queryKey` to reuse the cache
-- Keep loaders side-effect free (no store writes). Set store state from components/effects instead
+**React Query**
 
-Example (infinite list):
+- Single `QueryClient` in `app/root.tsx`; use `useQuery`/`useInfiniteQuery`/`useMutation`
+- **Always extract React Query logic into custom hooks**; never use directly in components/containers
+- Define stable query keys: `const keys = { list: (limit) => ["pokemon", "list", limit] }`
+- Handle errors via `ErrorBoundary`; surface loading/empty states in components
+- Export query keys from hooks for clientLoader consistency
 
-```ts
-const keys = {
-  listInfinite: (limit: number) =>
-    ["entity", "list", "infinite", limit] as const,
-}
+**Zustand State**
 
-export const clientLoader = (queryClient: QueryClient) => async () => {
-  const limit = useUiStore.getState().listLimit
-  await queryClient.prefetchInfiniteQuery({
-    queryKey: keys.listInfinite(limit),
-    initialPageParam: 0,
-    queryFn: ({ pageParam }) =>
-      repository.fetchListPage({ limit, offset: pageParam }),
-    getNextPageParam: (lastPage) => lastPage.nextOffset ?? undefined,
-    pages: 1,
-  })
-  return null
-}
-```
+- For ephemeral UI state only (filters, toggles); use React Query for server data
+- Co-locate stores in `hooks/` or `state/` folders; promote to `app/shared/stores/` if shared
+- Plain modules (no React imports); minimal serializable state; small actions
 
-Example (detail by URL param):
+**Client Loaders**
+
+- Pre-seed React Query cache; return `null`; curry with `QueryClient`
+- Read Zustand via `store.getState()` only; validate params; throw `Response` for errors
 
 ```ts
-const keys = { byId: (id: string) => ["entity", "detail", id] as const }
-
 export const clientLoader =
   (queryClient: QueryClient) =>
-  async ({ params }: Route.ClientLoaderArgs) => {
-    const id = params.id?.toString() ?? ""
+  async ({ params }) => {
+    const id = params.id ?? ""
     if (!id) throw new Response("Missing id", { status: 400 })
     await queryClient.prefetchQuery({
-      queryKey: keys.byId(id),
+      queryKey: ["entity", "detail", id],
       queryFn: () => repository.fetchById(id),
     })
     return null
   }
 ```
 
-### React Query
+## Development Practices
 
-- Initialize a single `QueryClient` and wrap the app with `QueryClientProvider` in `app/root.tsx`
-- Prefer `useQuery`/`useInfiniteQuery`/`useMutation` for client-side data. Reuse repository functions as query functions
-- Client loaders should prefetch into the cache via `prefetchQuery`/`prefetchInfiniteQuery` and return `null`; components then call `useQuery`/`useInfiniteQuery` with the same `queryKey` to consume cached data (no `initialData` needed when prefetching)
-- Define stable query keys under a local `keys` object per route segment (e.g., `const keys = { list: (limit:number)=>["pokemon","list",limit], byName: (name:string)=>["pokemon","detail",name] }`)
-- Handle errors via `ErrorBoundary`; in components, surface loading and empty states
+**Code Quality**
 
-## State Management (Zustand)
+- Small files: components ≤150 lines, any file ≤500 lines
+- Destructure props; use modern ES features; strict TypeScript (no `any`)
+- Extract shared logic; promote reusable components to appropriate scope
+- Single-purpose files; descriptive names; explicit types for public APIs
 
-- Use Zustand for ephemeral UI/app state only (e.g., filter values, selected IDs, toggles). Do not store server-fetched entities; use React Query for server data
-- Co-locate feature-specific stores under the route segment in `hooks/` or `state/` folders; promote cross-feature state to `app/shared/stores/`
-- Stores are plain, framework-agnostic modules. No React imports inside stores
-- Keep state minimal and serializable; expose small actions; prefer selectors in components to avoid re-renders
-- Access store outside React via `store.getState()` in loaders or utilities when needed; avoid writing to stores inside loaders
-- Optional persistence: use middleware only when justified; default to in-memory
+**React Patterns**
 
-## Styling (Tailwind v4)
+- Functional components with explicit prop interfaces; default parameters over `defaultProps`
+- Memoize only when measurably preventing re-renders
+- Stable, unique `key` props for lists
 
-- Prefer utilities over custom CSS; create reusable variants
-- Mobile-first; use semantic HTML; avoid unnecessary wrapper elements
-- Organize CSS in `app.css`, `components.css`, `utilities.css`
+## Routing & Performance
 
-## React Practices
+**React Router v7**
 
-- Functional components with explicit prop interfaces; use default parameters instead of `defaultProps`
-- Memoize (`React.memo`, `useMemo`, `useCallback`) when it measurably prevents re-renders
-- Lists require stable, unique `key` props
+- File-based routing; loaders for URL-driven/blocking data only
+- Actions for form submissions; lazy-load routes; layout routes for guards
 
-## AI-Friendly Patterns
+**Optimization**
 
-- Descriptive names; explicit types for public APIs; JSDoc for complex/public modules
-- Single-purpose files; predictable folder layout; explicit exports and dependencies
+- Code-split at route level; optimize assets; monitor bundle sizes
+- Track Core Web Vitals; maintain performance budget
 
-## Testing
+## Styling & Testing
 
-- Tests under `tests/`, mirroring features; name files `*.test.tsx` or `*.spec.tsx`
-- Use React Testing Library; test behavior; mock external deps only
-- Aim for ≥ 80% coverage on critical paths; use factories/fixtures
+**Tailwind v4**
 
-## Performance & Monitoring
+- Utilities over custom CSS; mobile-first; semantic HTML
+- Organize in `app.css`, `components.css`, `utilities.css`
 
-- Code-split at route level by default; split large components when helpful
-- Optimize assets; leverage browser caching; monitor bundle sizes
-- Track Core Web Vitals; enable error tracking; maintain a performance budget; run periodic perf/a11y audits
+**Testing**
+
+- Tests under `tests/` mirroring features; `*.test.tsx` naming
+- React Testing Library; test behavior; ≥80% coverage on critical paths
