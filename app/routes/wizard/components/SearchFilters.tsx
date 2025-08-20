@@ -1,5 +1,9 @@
-import type { WizardFilters, WizardTab } from "../types"
-import { ElixirDifficulty, SpellType } from "../types"
+import {
+  ElixirDifficulty,
+  SpellType,
+  type WizardFilters,
+  type WizardTab,
+} from "../types"
 
 interface SearchFiltersProps {
   activeTab: WizardTab

@@ -1,14 +1,49 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import type { Route } from "~/routes/pokemon/+types/index"
 
-const { mockFetchPokemonList } = vi.hoisted(() => ({
-  mockFetchPokemonList: vi.fn(),
+const { mockStore, mockPokemonApi, mockResetPokemonList } = vi.hoisted(() => {
+  const mockStore = {
+    dispatch: vi.fn(),
+    getState: vi.fn(() => ({
+      pokemonUi: {
+        limit: 12,
+      },
+    })),
+  }
+
+  const mockPokemonApi = {
+    endpoints: {
+      getPokemonListPage: {
+        initiate: vi.fn(),
+      },
+    },
+  }
+
+  const mockResetPokemonList = vi.fn()
+
+  return { mockStore, mockPokemonApi, mockResetPokemonList }
+})
+
+vi.mock("~/shared/store", () => ({
+  store: mockStore,
 }))
 
-vi.mock("~/routes/pokemon/repositories/pokemon", () => ({
-  pokemonRepository: {
-    fetchPokemonList: mockFetchPokemonList,
-    fetchPokemonByName: vi.fn(),
-  },
+vi.mock("~/shared/store/hooks", () => ({
+  useAppDispatch: () => mockStore.dispatch,
+  useAppSelector: (selector: any) => selector(mockStore.getState()),
+}))
+
+vi.mock("react-redux", () => ({
+  useDispatch: () => mockStore.dispatch,
+  useSelector: (selector: any) => selector(mockStore.getState()),
+}))
+
+vi.mock("~/routes/pokemon/slices/pokemonApi", () => ({
+  pokemonApi: mockPokemonApi,
+}))
+
+vi.mock("~/routes/pokemon/slices/pokemonUiSlice", () => ({
+  resetPokemonList: mockResetPokemonList,
 }))
 
 import { clientLoader } from "~/routes/pokemon/index"
@@ -16,26 +51,23 @@ import { clientLoader } from "~/routes/pokemon/index"
 describe("pokemon/index clientLoader", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockFetchPokemonList.mockReset()
+    mockStore.dispatch.mockClear()
+    mockStore.getState.mockReturnValue({
+      pokemonUi: {
+        limit: 12,
+      },
+    })
+    mockPokemonApi.endpoints.getPokemonListPage.initiate.mockClear()
+    mockResetPokemonList.mockClear()
   })
 
-  it("returns pokemon list from repository", async () => {
-    const list = [
-      { name: "bulbasaur", url: "https://pokeapi.co/api/v2/pokemon/1/" },
-      { name: "ivysaur", url: "https://pokeapi.co/api/v2/pokemon/2/" },
-    ]
-    mockFetchPokemonList.mockResolvedValueOnce(list)
+  it("resets pokemon list and initiates API call", async () => {
+    const result = await clientLoader({} as Route.ClientLoaderArgs)
 
-    const result = await clientLoader({} as unknown as any)
-
-    expect(mockFetchPokemonList).toHaveBeenCalledWith(12)
-    expect(result).toEqual({ pokemonList: list })
-  })
-
-  it("propagates repository errors", async () => {
-    const error = new Error("network error")
-    mockFetchPokemonList.mockRejectedValueOnce(error)
-
-    await expect(clientLoader({} as unknown as any)).rejects.toBe(error)
+    expect(mockStore.dispatch).toHaveBeenCalledWith(mockResetPokemonList())
+    expect(
+      mockPokemonApi.endpoints.getPokemonListPage.initiate,
+    ).toHaveBeenCalledWith({ limit: 12, offset: 0 }, { forceRefetch: false })
+    expect(result).toBeNull()
   })
 })

@@ -18,7 +18,7 @@ export function SpellCard({ spell }: SpellCardProps) {
 
       {spell.incantation && (
         <p className="mb-2 text-sm text-gray-600 italic dark:text-gray-400">
-          "{spell.incantation}"
+          &ldquo;{spell.incantation}&rdquo;
         </p>
       )}
 

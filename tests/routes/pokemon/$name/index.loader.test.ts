@@ -1,13 +1,58 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import type { Route } from "~/routes/pokemon/$name/+types/index"
 
-const { mockFetchPokemonByName } = vi.hoisted(() => ({
-  mockFetchPokemonByName: vi.fn(),
+const { mockStore, mockPokemonApi } = vi.hoisted(() => {
+  const mockStore = {
+    dispatch: vi.fn(),
+  }
+
+  const mockPokemonApi = {
+    endpoints: {
+      getPokemonByName: {
+        initiate: vi.fn(),
+      },
+    },
+  }
+
+  return { mockStore, mockPokemonApi }
+})
+
+vi.mock("~/shared/store", () => ({
+  store: mockStore,
 }))
 
-vi.mock("~/routes/pokemon/repositories/pokemon", () => ({
-  pokemonRepository: {
-    fetchPokemonList: vi.fn(),
-    fetchPokemonByName: mockFetchPokemonByName,
+vi.mock("~/shared/store/hooks", () => ({
+  useAppDispatch: () => mockStore.dispatch,
+  useAppSelector: (selector: any) => selector({ pokemonUi: { limit: 12 } }),
+}))
+
+vi.mock("react-redux", () => ({
+  useDispatch: () => mockStore.dispatch,
+  useSelector: (selector: any) => selector({ pokemonUi: { limit: 12 } }),
+}))
+
+vi.mock("~/routes/pokemon/slices/pokemonApi", () => ({
+  pokemonApi: mockPokemonApi,
+}))
+
+vi.mock("@reduxjs/toolkit", () => ({
+  configureStore: vi.fn(),
+  createSlice: vi.fn(),
+  createApi: vi.fn(),
+  fetchBaseQuery: vi.fn(),
+  setupListeners: vi.fn(),
+}))
+
+vi.mock("@reduxjs/toolkit/query/react", () => ({
+  createApi: vi.fn(),
+  fetchBaseQuery: vi.fn(),
+}))
+
+vi.mock("~/routes/pokemon/slices/pokemonUiSlice", () => ({
+  resetPokemonList: vi.fn(),
+  pokemonUiSlice: {
+    reducer: vi.fn(),
+    actions: {},
   },
 }))
 
@@ -16,40 +61,30 @@ import { clientLoader } from "~/routes/pokemon/$name/index"
 describe("pokemon/$name clientLoader", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockFetchPokemonByName.mockReset()
+    mockStore.dispatch.mockClear()
+    mockPokemonApi.endpoints.getPokemonByName.initiate.mockClear()
   })
 
   it("throws 400 when missing name param", async () => {
     await expect(
-      clientLoader({ params: {} } as unknown as any),
+      clientLoader({ params: {} } as Route.ClientLoaderArgs),
     ).rejects.toMatchObject({ status: 400 })
   })
 
-  it("returns pokemon details from repository", async () => {
-    const pokemon = {
-      id: 1,
-      name: "bulbasaur",
-      height: 7,
-      weight: 69,
-      imageUrl: "http://example.com/img.png",
-      types: ["grass", "poison"],
-    }
-    mockFetchPokemonByName.mockResolvedValueOnce(pokemon)
-
-    const result = await clientLoader({
-      params: { name: "Bulbasaur" },
-    } as unknown as any)
-
-    expect(mockFetchPokemonByName).toHaveBeenCalledWith("Bulbasaur")
-    expect(result).toEqual({ pokemon })
+  it("throws 400 when name param is empty", async () => {
+    await expect(
+      clientLoader({ params: { name: "" } } as Route.ClientLoaderArgs),
+    ).rejects.toMatchObject({ status: 400 })
   })
 
-  it("propagates repository errors", async () => {
-    const error = new Error("boom")
-    mockFetchPokemonByName.mockRejectedValueOnce(error)
+  it("initiates API call with pokemon name", async () => {
+    const result = await clientLoader({
+      params: { name: "bulbasaur" },
+    } as Route.ClientLoaderArgs)
 
-    await expect(
-      clientLoader({ params: { name: "mew" } } as unknown as any),
-    ).rejects.toBe(error)
+    expect(
+      mockPokemonApi.endpoints.getPokemonByName.initiate,
+    ).toHaveBeenCalledWith("bulbasaur", { forceRefetch: false })
+    expect(result).toBeNull()
   })
 })

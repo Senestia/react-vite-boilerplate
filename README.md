@@ -354,11 +354,28 @@ npm run build && npm run start
 
 ## 🧭 Useful Scripts
 
+### 🚀 Development
+
 - `dev` — start dev server with HMR
 - `build` — production build
 - `start` — preview production build
 - `typecheck` — TypeScript diagnostics
+
+### 🧪 Testing
+
 - `test` — run unit tests (Vitest + RTL)
+- `test:watch` — run tests in watch mode
+- `test:coverage` — run tests with coverage report
+
+### 🔍 Code Quality
+
+- `lint` — check for ESLint errors (max 0 warnings)
+- `lint:fix` — fix auto-fixable ESLint issues
+- `lint:check` — alias for lint command
+- `format` — format code with Prettier
+- `format:check` — check if code is properly formatted
+- `quality` — run all quality checks (lint + typecheck + format)
+- `quality:fix` — fix linting and formatting issues
 
 ---
 
