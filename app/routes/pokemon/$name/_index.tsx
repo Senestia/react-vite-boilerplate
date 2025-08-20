@@ -2,7 +2,7 @@ import { isRouteErrorResponse } from "react-router"
 import ErrorView from "../../../shared/components/ErrorView"
 import { store } from "../../../shared/store"
 import { pokemonApi } from "../slices/pokemonApi"
-import type { Route } from "./+types/index"
+import type { Route } from "./+types/_index"
 import { PokemonDetailsContainer } from "./containers/PokemonDetailsContainer"
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {

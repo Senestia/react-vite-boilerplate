@@ -15,7 +15,7 @@ Concise, enforceable rules for building front-end features in this repo.
 
 ## Structure & Organization
 
-- Route entry per folder: `index.tsx`
+- Route entry per folder: `_index.tsx`
 - Segment layout per folder: `layout.tsx` (presentational only; one per segment)
 - Page folders may include: `components/`, `containers/`, `hooks/`, `services/`, `constants/`, `repositories/`, `slices/`, `types/`, `utils/`
 - Shared, reusable assets live in `app/shared/`
@@ -25,14 +25,14 @@ Concise, enforceable rules for building front-end features in this repo.
 app/routes/
 ├── home/
 │   ├── components/
-│   └── index.tsx             # Home route component
+│   └── _index.tsx             # Home route component
 ├── notFound/
 │   ├── components/
-│   └── index.tsx             # Page not found route component
+│   └── _index.tsx             # Page not found route component
 ├── [page-name]/
 │   │   └── $[path]           # Optional nested dynamic route
 │   ├── layout.tsx            # Optional layout route for this segment
-│   ├── index.tsx             # Main route component
+│   ├── _index.tsx            # Main route component
 │   ├── components/           # Page-specific UI components
 │   ├── containers/           # Page-specific business logic containers
 │   ├── hooks/                # Page-specific custom hooks

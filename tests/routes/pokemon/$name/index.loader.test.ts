@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import type { Route } from "~/routes/pokemon/$name/+types/index"
+import type { Route } from "~/../.react-router/types/app/routes/pokemon/$name/+types/_index"
 
 const { mockStore, mockPokemonApi } = vi.hoisted(() => {
   const mockStore = {
@@ -56,7 +56,7 @@ vi.mock("~/routes/pokemon/slices/pokemonUiSlice", () => ({
   },
 }))
 
-import { clientLoader } from "~/routes/pokemon/$name/index"
+import { clientLoader } from "~/routes/pokemon/$name/_index"
 
 describe("pokemon/$name clientLoader", () => {
   beforeEach(() => {

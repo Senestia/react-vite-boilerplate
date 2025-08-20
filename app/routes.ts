@@ -7,12 +7,12 @@ import {
 
 export default [
   layout("routes/layout.tsx", [
-    index("routes/home/index.tsx"),
+    index("routes/home/_index.tsx"),
     route("/pokemon", "routes/pokemon/layout.tsx", [
-      index("routes/pokemon/index.tsx"),
-      route(":name", "routes/pokemon/$name/index.tsx"),
+      index("routes/pokemon/_index.tsx"),
+      route(":name", "routes/pokemon/$name/_index.tsx"),
     ]),
-    route("/wizard", "routes/wizard/index.tsx"),
-    route("*", "routes/notFound/index.tsx"),
+    route("/wizard", "routes/wizard/_index.tsx"),
+    route("*", "routes/notFound/_index.tsx"),
   ]),
 ] satisfies RouteConfig

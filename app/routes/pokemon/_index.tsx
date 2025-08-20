@@ -1,7 +1,7 @@
 import { isRouteErrorResponse } from "react-router"
 import ErrorView from "../../shared/components/ErrorView"
 import { store } from "../../shared/store"
-import type { Route } from "./+types/index"
+import type { Route } from "./+types/_index"
 import { PokemonExplorer } from "./containers/PokemonExplorer"
 import { pokemonApi } from "./slices/pokemonApi"
 import { resetPokemonList } from "./slices/pokemonUiSlice"
