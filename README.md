@@ -32,7 +32,7 @@ Modern, production-ready React boilerplate using React Router 7 Framework Mode (
 
 ## 📁 Folder Structure
 
-Routes and tests follow the rules in `front-end-rules`:
+Routes and tests follow the rules in `.cursor/rules/front-end-rules.mdc`:
 
 ```
 app/routes/
@@ -354,11 +354,26 @@ npm run build && npm run start
 
 ## 🧭 Useful Scripts
 
+### Development
+
 - `dev` — start dev server with HMR
 - `build` — production build
 - `start` — preview production build
+
+### Code Quality
+
 - `typecheck` — TypeScript diagnostics
+- `lint` — ESLint check with error reporting
+- `lint:check` — ESLint check with zero warnings policy
+- `lint:fix` — ESLint with auto-fix
+- `quality` — run lint + typecheck + format checks
+- `quality:fix` — run lint:fix + format auto-fix
+
+### Testing
+
 - `test` — run unit tests (Vitest + RTL)
+- `test:watch` — run tests in watch mode
+- `test:coverage` — run tests with coverage report
 
 ---
 
