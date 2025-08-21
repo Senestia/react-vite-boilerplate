@@ -1,18 +1,12 @@
-<div align="center">
+# ⚡️ React Vite Boilerplate
 
-# ⚡️ React Router 7 + React Query + Zustand
+### 🚀 React Router 7 + React Query + Zustand
 
-**The Ultimate React SPA Stack** 🚀
-
-</div>
-
-<div align="center">
-
-### 🧭 **React Router 7** • 🔄 **React Query** • 📦 **Zustand**
-
-_Programmatic routing • Server state • UI state • Lightning fast_
-
-</div>
+[![React](https://img.shields.io/badge/React-19-61dafb?logo=react)](https://react.dev)
+[![React Router](https://img.shields.io/badge/React%20Router-7-ca4245?logo=react-router)](https://reactrouter.com)
+[![React Query](https://img.shields.io/badge/React%20Query-5-ff6b6b?logo=reactquery)](https://tanstack.com/query)
+[![Zustand](https://img.shields.io/badge/Zustand-4-6366f1?logo=zustand)](https://zustand-demo.pmnd.rs)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6?logo=typescript)](https://typescriptlang.org)
 
 ---
 
