@@ -1,6 +1,6 @@
 import { Link } from "react-router"
-import { usePokemonDetail } from "../../hooks"
 import { PokemonDetails } from "../components/PokemonDetails"
+import { usePokemonDetail } from "../hooks"
 
 export function PokemonDetailsContainer() {
   const { pokemon, pokemonName, error, isLoading } = usePokemonDetail()

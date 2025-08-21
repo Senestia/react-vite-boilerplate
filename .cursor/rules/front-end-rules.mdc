@@ -20,19 +20,18 @@ Concise, enforceable rules for building front-end features in this repo.
 - **Semantic dynamic routes**: detail.tsx, edit.tsx, settings.tsx
 - **Module layouts**: layout.tsx wraps all routes in module
 
-
 ```
 app/routes/
 ├── home/
-│   ├── home.tsx              # / route
-│   └── components/           # Module-specific components only
+│   ├── home.tsx                       # / route
+│   └── components/                    # Module-specific components only
 ├── notFound/
-│   ├── not-found.tsx         # catch-all route
-│   └── components/           # Module-specific components only
+│   ├── not-found.tsx                  # catch-all route
+│   └── components/                    # Module-specific components only
 ├── auth/                              # Authentication module
 │   ├── layout.tsx                     # Auth module layout (wraps all auth routes)
 │   ├── login.tsx                      # /auth/login route
-│   ├── register.tsx                   # /auth/register route
+│   ├── register.tsx                   # /auth/register routenpm run test
 │   ├── forgot-password.tsx            # /auth/forgot-password route
 │   ├── components/                    # Auth-specific UI components
 │   ├── hooks/                         # Auth-specific custom hooks
@@ -43,7 +42,12 @@ app/routes/
 │   ├── list.tsx                       # /pokemon route (list page)
 │   ├── detail.tsx                     # /pokemon/:name route (detail page)
 │   ├── components/                    # Pokemon-specific UI components
+│   │   ├── PokemonList.tsx            # Shared across multiple routes
+│   │   ├── PokemonListItem.tsx        # Used by list route
+│   │   └── PokemonDetails.tsx         # Used by detail route
 │   ├── containers/                    # Pokemon-specific containers
+│   │   ├── PokemonExplorer.tsx        # Used by list route
+│   │   └── PokemonDetailsContainer.tsx # Used by detail route
 │   ├── hooks/                         # Pokemon-specific custom hooks
 │   ├── slices/                        # Pokemon-specific Redux slices
 │   └── types/                         # Pokemon-specific TypeScript definitions
@@ -54,10 +58,9 @@ app/routes/
 │   └── [folders]/                     # Module-specific resources
 └── layout.tsx                         # Root layout (optional)
 tests/
-├── routes/
-│   ├── auth/                          # Mirror module structure
-│   └── pokemon/
-└── shared/
+├── routes/                            # MUST mirror app/routes structure exactly
+│   └── [module-name]/
+└── shared/                            # Test shared utilities and components
 ```
 
 ## Architecture Patterns
@@ -66,7 +69,7 @@ tests/
 
 - **Module Boundaries**: Each module represents a distinct domain/feature (auth, pokemon, admin, etc.)
 - **Route Naming**: Files named by their URL path - `login.tsx` for `/auth/login`, not `_index.tsx`
-- **Dynamic Route Naming**: Use semantic names describing the route's purpose - `detail.tsx` for detail pages, `edit.tsx` for edit pages
+- **Dynamic Route Naming**: Use semantic names describing the route's purpose - `detail.tsx` for detail pages, `edit.tsx` for edit pages. NEVER use React Router file-based patterns like `$name/` folders - all components and containers should be organized within the module's main `components/` and `containers/` folders
 - **Module Layouts**: `layout.tsx` in module folders wraps all routes within that module
 - **Module Resources**: Each module owns its components, hooks, types, slices within its folder
 - **Cross-Module Dependencies**: Prefer shared utilities in `app/shared/` over direct imports between modules
@@ -77,24 +80,24 @@ tests/
 ```typescript
 // routes.ts
 export default [
-    layout("/auth", "routes/auth/layout.tsx", [
-        route("login", "routes/auth/login.tsx"), // /auth/login
-        route("register", "routes/auth/register.tsx"), // /auth/register
-        route("forgot-password", "routes/auth/forgot-password.tsx"), // /auth/forgot-password
+  layout("/auth", "routes/auth/layout.tsx", [
+    route("login", "routes/auth/login.tsx"), // /auth/login
+    route("register", "routes/auth/register.tsx"), // /auth/register
+    route("forgot-password", "routes/auth/forgot-password.tsx"), // /auth/forgot-password
+  ]),
+  layout("routes/layout.tsx", [
+    index("routes/home.tsx"), // /
+    route("/pokemon", "routes/pokemon/layout.tsx", [
+      index("routes/pokemon/list.tsx"), // /pokemon
+      route(":name", "routes/pokemon/detail.tsx"), // /pokemon/:name
     ]),
-    layout("routes/layout.tsx", [
-        index("routes/home.tsx"), // /
-        route("/pokemon", "routes/pokemon/layout.tsx", [
-            index("routes/pokemon/list.tsx"), // /pokemon
-            route(":name", "routes/pokemon/detail.tsx"), // /pokemon/:name
-        ]),
-        route("/admin", "routes/admin/layout.tsx", [
-            index("routes/admin/dashboard.tsx"), // /admin
-            route("users", "routes/admin/users.tsx"), // /admin/users
-            route("users/:id/edit", "routes/admin/edit-user.tsx"), // /admin/users/:id/edit
-        ]),
-        route("*", "routes/not-found.tsx"), // 404
+    route("/admin", "routes/admin/layout.tsx", [
+      index("routes/admin/dashboard.tsx"), // /admin
+      route("users", "routes/admin/users.tsx"), // /admin/users
+      route("users/:id/edit", "routes/admin/edit-user.tsx"), // /admin/users/:id/edit
     ]),
+    route("*", "routes/not-found.tsx"), // 404
+  ]),
 ] satisfies RouteConfig
 ```
 
@@ -152,6 +155,12 @@ export default [
 - `edit.tsx` - For editing individual items (`/users/:id/edit`, `/posts/:id/edit`)
 - `settings.tsx` - For settings pages (`/users/:id/settings`)
 - `dashboard.tsx` - For dashboard/overview pages (`/admin`, `/user/:id/dashboard`)
+
+### Anti-Patterns to Avoid
+
+- **NEVER use `$name/`, `$id/`, or similar parameter-based folder structures** - these are React Router file-based routing patterns that violate our semantic naming convention
+- **NEVER organize components/containers by route parameters** - all components and containers belong in the module's main folders
+- **ALWAYS use semantic route files** (`detail.tsx`, `edit.tsx`) that import from the module's shared `components/` and `containers/` folders
 
 ## Data Management
 
@@ -233,6 +242,23 @@ export default [
 
 ### Testing & Performance
 
-- Tests under `tests/` mirroring features; use React Testing Library
+**Test Structure Requirements:**
+
+- **MUST mirror route structure exactly** - `tests/routes/` mirrors `app/routes/`
+- **Test naming matches route naming** - `login.test.tsx` for `login.tsx`, `detail.test.tsx` for `detail.tsx`
+- **Module boundaries respected** - each route module has corresponding test module
+- **Component/container/hook tests** - place in same relative folders as source files
+
+**Test Organization:**
+
+- Route tests: `tests/routes/[module]/[route-name].test.tsx`
+- Component tests: `tests/routes/[module]/components/[Component].test.tsx`
+- Container tests: `tests/routes/[module]/containers/[Container].test.tsx`
+- Hook tests: `tests/routes/[module]/hooks/[hookName].test.ts`
+- Shared tests: `tests/shared/[category]/[item].test.tsx`
+
+**Performance:**
+
+- Use React Testing Library for all component tests
 - Code-split at route level; monitor bundle sizes
 - Track Core Web Vitals; maintain performance budget

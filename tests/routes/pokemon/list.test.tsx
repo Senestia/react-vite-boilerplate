@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import type { Route } from "~/../.react-router/types/app/routes/pokemon/+types/_index"
+import type { Route } from "~/../.react-router/types/app/routes/pokemon/+types/list"
 
 const { mockStore, mockPokemonApi, mockResetPokemonList } = vi.hoisted(() => {
   const mockStore = {
@@ -46,9 +46,9 @@ vi.mock("~/routes/pokemon/slices/pokemonUiSlice", () => ({
   resetPokemonList: mockResetPokemonList,
 }))
 
-import { clientLoader } from "~/routes/pokemon/_index"
+import { clientLoader } from "~/routes/pokemon/list"
 
-describe("pokemon/index clientLoader", () => {
+describe("pokemon/list clientLoader", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockStore.dispatch.mockClear()
