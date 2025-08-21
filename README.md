@@ -9,7 +9,9 @@
 [![React Query](https://img.shields.io/badge/React%20Query-5-ff6b6b?logo=reactquery)](https://tanstack.com/query)
 [![Zustand](https://img.shields.io/badge/Zustand-4-6366f1?logo=zustand)](https://zustand-demo.pmnd.rs)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6?logo=typescript)](https://typescriptlang.org)
+
 </div>
+
 ---
 
 ## 🎯 What You Get
