@@ -36,26 +36,39 @@ From our front-end rules, routes and tests are organized like this:
 ```
 app/routes/
 ├── home/
-│   ├── components/
-│   └── index.tsx             # Home route component
+│   ├── home.tsx              # / route
+│   └── components/           # Module-specific components only
 ├── notFound/
-│   ├── components/
-│   └── index.tsx             # Page not found route component
-├── [page-name]/
-│   │   └── $[path]           # Optional nested dynamic route
-│   ├── layout.tsx            # Optional layout route for this segment
-│   ├── index.tsx             # Main route component
-│   ├── components/           # Page-specific UI components
-│   ├── containers/           # Page-specific business logic containers
-│   ├── hooks/                # Page-specific custom hooks
-│   ├── services/             # Page-specific API services
-│   ├── constants/            # Page-specific constants and static data
-│   ├── slices/               # Page-specific Redux slices (RTK Query APIs)
-│   ├── types/                # Page-specific TypeScript definitions
-│   └── utils/                # Page-specific utility functions
-└── layout/
+│   ├── not-found.tsx         # catch-all route
+│   └── components/           # Module-specific components only
+├── auth/                              # Authentication module
+│   ├── layout.tsx                     # Auth module layout (wraps all auth routes)
+│   ├── login.tsx                      # /auth/login route
+│   ├── register.tsx                   # /auth/register route
+│   ├── forgot-password.tsx            # /auth/forgot-password route
+│   ├── components/                    # Auth-specific UI components
+│   ├── hooks/                         # Auth-specific custom hooks
+│   ├── types/                         # Auth-specific TypeScript definitions
+│   └── slices/                        # Auth-specific Redux slices
+├── pokemon/                           # Pokemon module
+│   ├── layout.tsx                     # Pokemon module layout (wraps all pokemon routes)
+│   ├── list.tsx                       # /pokemon route (list page)
+│   ├── detail.tsx                     # /pokemon/:name route (detail page)
+│   ├── components/                    # Pokemon-specific UI components
+│   ├── containers/                    # Pokemon-specific containers
+│   ├── hooks/                         # Pokemon-specific custom hooks
+│   ├── slices/                        # Pokemon-specific Redux slices
+│   └── types/                         # Pokemon-specific TypeScript definitions
+├── [module-name]/                     # Additional modules follow same pattern
+│   ├── layout.tsx                     # Module layout (optional)
+│   ├── [route-name].tsx               # Module routes named by URL path
+│   ├── [semantic-name].tsx            # Dynamic routes with semantic names
+│   └── [folders]/                     # Module-specific resources
+└── layout.tsx                         # Root layout (optional)
 tests/
-├── routes/[page-name]/
+├── routes/
+│   ├── auth/                          # Mirror module structure
+│   └── pokemon/
 └── shared/
 ```
 
@@ -74,7 +87,7 @@ export default {
 } satisfies Config
 ```
 
-### 🗺️ Route definitions (file-based)
+### 🗺️ Route definitions
 
 `app/routes.ts`
 
@@ -87,52 +100,35 @@ import {
 } from "@react-router/dev/routes"
 
 export default [
+  layout("/auth", "routes/auth/layout.tsx", [
+    route("login", "routes/auth/login.tsx"), // /auth/login
+    route("register", "routes/auth/register.tsx"), // /auth/register
+    route("forgot-password", "routes/auth/forgot-password.tsx"), // /auth/forgot-password
+  ]),
   layout("routes/layout.tsx", [
-    index("routes/home/index.tsx"),
+    index("routes/home/home.tsx"), // /
     route("/pokemon", "routes/pokemon/layout.tsx", [
-      index("routes/pokemon/index.tsx"),
-      route(":name", "routes/pokemon/$name/index.tsx"),
+      index("routes/pokemon/list.tsx"), // /pokemon
+      route(":name", "routes/pokemon/detail.tsx"), // /pokemon/:name
     ]),
-    route("*", "routes/notFound/index.tsx"),
+    route("/admin", "routes/admin/layout.tsx", [
+      index("routes/admin/dashboard.tsx"), // /admin
+      route("users", "routes/admin/users.tsx"), // /admin/users
+      route("users/:id/edit", "routes/admin/edit-user.tsx"), // /admin/users/:id/edit
+    ]),
+    route("*", "routes/notFound/not-found.tsx"), // 404
   ]),
 ] satisfies RouteConfig
 ```
 
-### 📦 Index route with RTK Query prefetching
+### 🧭 RTK Query prefetching
 
-`app/routes/pokemon/index.tsx`
+`app/routes/pokemon/detail.tsx`
 
 ```tsx
-import type { Route } from "./+types/index"
+import type { Route } from "./+types/detail"
 import { store } from "../../shared/store"
 import { pokemonApi } from "./slices/pokemonApi"
-import { PokemonExplorer } from "./containers/PokemonExplorer"
-
-export async function clientLoader(_args: Route.ClientLoaderArgs) {
-  const { ui } = store.getState()
-  const { limit } = ui.pokemonList
-  store.dispatch(
-    pokemonApi.endpoints.getPokemonListPage.initiate(
-      { limit, offset: 0 },
-      { forceRefetch: false },
-    ),
-  )
-  return null
-}
-
-export default function PokemonRoute() {
-  return <PokemonExplorer />
-}
-```
-
-### 🧭 Dynamic route with RTK Query prefetching
-
-`app/routes/pokemon/$name/index.tsx`
-
-```tsx
-import type { Route } from "./+types/index"
-import { store } from "../../../shared/store"
-import { pokemonApi } from "../slices/pokemonApi"
 import { PokemonDetailsContainer } from "./containers/PokemonDetailsContainer"
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
@@ -146,7 +142,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   return null
 }
 
-export default function PokemonDetailsRoute() {
+export default function PokemonDetailRoute() {
   return <PokemonDetailsContainer />
 }
 ```
@@ -186,6 +182,54 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   return <div role="alert">{details}</div>
 }
 ```
+
+## 🏗️ Architecture Patterns
+
+### Components vs Containers vs Custom Hooks
+
+Our architecture separates concerns into three distinct layers:
+
+- **Components**: Presentational only (no data fetching/business logic, minimal state)
+- **Containers**: Compose components and custom hooks; handle UI-specific concerns (refs, Intersection Observers)
+- **Custom Hooks**: Business logic, Redux state management, RTK Query calls, complex side effects
+
+**Key Rules:**
+
+- Never mix fetching and UI in the same file
+- Prefer custom hooks for business logic encapsulation
+- Components focus purely on rendering
+- Containers orchestrate components and hooks
+
+### Custom Hook Organization
+
+- Place in `hooks/` folders within route segments
+- Name with `use` prefix + clear functionality (`useInfiniteScroll`, `usePokemonFilters`)
+- Export from barrel files when folder has 3+ hooks
+- Pure business logic only - no JSX, refs, or DOM manipulation
+- One primary concern per hook; avoid deep nesting
+
+### Naming Conventions
+
+**Route Files:**
+
+- **Route Files**: kebab-case matching URL path (`login.tsx`, `forgot-password.tsx`)
+- **Dynamic Routes**: Semantic names describing purpose (`detail.tsx`, `edit.tsx`, `settings.tsx`)
+- **Module Layouts**: Always `layout.tsx` within module folders
+
+**Components & Code:**
+
+- **Components**: PascalCase (`UserProfile.tsx`)
+- **Hooks**: camelCase with `use` prefix (`useUserData.ts`)
+- **Services**: camelCase with `Service` suffix (`userService.ts`)
+- **Modules**: kebab-case folder names (`auth/`, `user-profile/`)
+- **Barrels**: always `index.ts`
+
+**Common Dynamic Route Names:**
+
+- `detail.tsx` - For showing individual item details (`/pokemon/:name`, `/users/:id`)
+- `edit.tsx` - For editing individual items (`/users/:id/edit`, `/posts/:id/edit`)
+- `settings.tsx` - For settings pages (`/users/:id/settings`)
+- `dashboard.tsx` - For dashboard/overview pages (`/admin`, `/user/:id/dashboard`)
 
 ## 🗄️ Redux Toolkit + RTK Query Setup
 

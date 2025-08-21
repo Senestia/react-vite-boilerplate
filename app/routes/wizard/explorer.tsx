@@ -1,7 +1,7 @@
 import { isRouteErrorResponse } from "react-router"
 import ErrorView from "../../shared/components/ErrorView"
 import { store } from "../../shared/store"
-import type { Route } from "./+types/_index"
+import type { Route } from "./+types/explorer"
 import { WizardExplorer } from "./containers/WizardExplorer"
 import { resetFilters } from "./slices/wizardUiSlice"
 

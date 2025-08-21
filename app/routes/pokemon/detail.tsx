@@ -1,9 +1,9 @@
 import { isRouteErrorResponse } from "react-router"
-import ErrorView from "../../../shared/components/ErrorView"
-import { store } from "../../../shared/store"
-import { pokemonApi } from "../slices/pokemonApi"
-import type { Route } from "./+types/_index"
-import { PokemonDetailsContainer } from "./containers/PokemonDetailsContainer"
+import ErrorView from "../../shared/components/ErrorView"
+import { store } from "../../shared/store"
+import { PokemonDetailsContainer } from "./$name/containers/PokemonDetailsContainer"
+import type { Route } from "./+types/detail"
+import { pokemonApi } from "./slices/pokemonApi"
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const name = params.name?.toString() ?? ""

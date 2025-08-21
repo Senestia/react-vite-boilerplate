@@ -15,15 +15,20 @@ Concise, enforceable rules for building front-end features in this repo.
 
 ## Structure & Organization
 
-- **Module-based organization**: Group related routes by domain/feature (auth, pokemon, etc.)
-- **Route files**: Named by URL path (login.tsx, register.tsx) not \_index.tsx
-- **Module folders**: Can include `components/`, `containers/`, `hooks/`, `services/`, `constants/`, `repositories/`, `slices/`, `types/`, `utils/`
-- **Standalone routes**: Simple routes (home.tsx, not-found.tsx) can remain at root level
-- **Shared assets**: Reusable across modules live in `app/shared/`
-- **Tests**: Mirror module structure under `tests/`
+- **Module-based**: Group routes by domain/feature (auth, pokemon)
+- **Route files**: Named by URL path (login.tsx) not \_index.tsx
+- **Semantic dynamic routes**: detail.tsx, edit.tsx, settings.tsx
+- **Module layouts**: layout.tsx wraps all routes in module
+
 
 ```
 app/routes/
+├── home/
+│   ├── home.tsx              # / route
+│   └── components/           # Module-specific components only
+├── notFound/
+│   ├── not-found.tsx         # catch-all route
+│   └── components/           # Module-specific components only
 ├── auth/                              # Authentication module
 │   ├── layout.tsx                     # Auth module layout (wraps all auth routes)
 │   ├── login.tsx                      # /auth/login route
@@ -47,8 +52,6 @@ app/routes/
 │   ├── [route-name].tsx               # Module routes named by URL path
 │   ├── [semantic-name].tsx            # Dynamic routes with semantic names
 │   └── [folders]/                     # Module-specific resources
-├── home.tsx                           # / route (standalone)
-├── not-found.tsx                      # /* route (standalone)
 └── layout.tsx                         # Root layout (optional)
 tests/
 ├── routes/
@@ -82,13 +85,13 @@ export default [
     layout("routes/layout.tsx", [
         index("routes/home.tsx"), // /
         route("/pokemon", "routes/pokemon/layout.tsx", [
-        index("routes/pokemon/list.tsx"), // /pokemon
-        route(":name", "routes/pokemon/detail.tsx"), // /pokemon/:name
+            index("routes/pokemon/list.tsx"), // /pokemon
+            route(":name", "routes/pokemon/detail.tsx"), // /pokemon/:name
         ]),
         route("/admin", "routes/admin/layout.tsx", [
-        index("routes/admin/dashboard.tsx"), // /admin
-        route("users", "routes/admin/users.tsx"), // /admin/users
-        route("users/:id/edit", "routes/admin/edit-user.tsx"), // /admin/users/:id/edit
+            index("routes/admin/dashboard.tsx"), // /admin
+            route("users", "routes/admin/users.tsx"), // /admin/users
+            route("users/:id/edit", "routes/admin/edit-user.tsx"), // /admin/users/:id/edit
         ]),
         route("*", "routes/not-found.tsx"), // 404
     ]),
