@@ -15,40 +15,85 @@ Concise, enforceable rules for building front-end features in this repo.
 
 ## Structure & Organization
 
-- Route entry per folder: `_index.tsx`
-- Segment layout per folder: `layout.tsx` (presentational only; one per segment)
-- Page folders may include: `components/`, `containers/`, `hooks/`, `services/`, `constants/`, `repositories/`, `slices/`, `types/`, `utils/`
-- Shared, reusable assets live in `app/shared/`
-- Tests live under `tests/`, mirroring feature structure
+- **Module-based organization**: Group related routes by domain/feature (auth, pokemon, etc.)
+- **Route files**: Named by URL path (login.tsx, register.tsx) not \_index.tsx
+- **Module folders**: Can include `components/`, `containers/`, `hooks/`, `services/`, `constants/`, `repositories/`, `slices/`, `types/`, `utils/`
+- **Standalone routes**: Simple routes (home.tsx, not-found.tsx) can remain at root level
+- **Shared assets**: Reusable across modules live in `app/shared/`
+- **Tests**: Mirror module structure under `tests/`
 
 ```
 app/routes/
-├── home/
-│   ├── components/
-│   └── _index.tsx             # Home route component
-├── notFound/
-│   ├── components/
-│   └── _index.tsx             # Page not found route component
-├── [page-name]/
-│   │   └── $[path]           # Optional nested dynamic route
-│   ├── layout.tsx            # Optional layout route for this segment
-│   ├── _index.tsx            # Main route component
-│   ├── components/           # Page-specific UI components
-│   ├── containers/           # Page-specific business logic containers
-│   ├── hooks/                # Page-specific custom hooks
-│   ├── services/             # Page-specific API services
-│   ├── constants/            # Page-specific constants and static data
-│   ├── repositories/         # Page-specific data provider definitions
-│   ├── slices/               # Page-specific Redux slices
-│   ├── types/                # Page-specific TypeScript definitions
-│   └── utils/                # Page-specific utility functions
-└── layout/
+├── auth/                              # Authentication module
+│   ├── layout.tsx                     # Auth module layout (wraps all auth routes)
+│   ├── login.tsx                      # /auth/login route
+│   ├── register.tsx                   # /auth/register route
+│   ├── forgot-password.tsx            # /auth/forgot-password route
+│   ├── components/                    # Auth-specific UI components
+│   ├── hooks/                         # Auth-specific custom hooks
+│   ├── types/                         # Auth-specific TypeScript definitions
+│   └── slices/                        # Auth-specific Redux slices
+├── pokemon/                           # Pokemon module
+│   ├── layout.tsx                     # Pokemon module layout (wraps all pokemon routes)
+│   ├── list.tsx                       # /pokemon route (list page)
+│   ├── detail.tsx                     # /pokemon/:name route (detail page)
+│   ├── components/                    # Pokemon-specific UI components
+│   ├── containers/                    # Pokemon-specific containers
+│   ├── hooks/                         # Pokemon-specific custom hooks
+│   ├── slices/                        # Pokemon-specific Redux slices
+│   └── types/                         # Pokemon-specific TypeScript definitions
+├── [module-name]/                     # Additional modules follow same pattern
+│   ├── layout.tsx                     # Module layout (optional)
+│   ├── [route-name].tsx               # Module routes named by URL path
+│   ├── [semantic-name].tsx            # Dynamic routes with semantic names
+│   └── [folders]/                     # Module-specific resources
+├── home.tsx                           # / route (standalone)
+├── not-found.tsx                      # /* route (standalone)
+└── layout.tsx                         # Root layout (optional)
 tests/
-├── routes/[page-name]/
+├── routes/
+│   ├── auth/                          # Mirror module structure
+│   └── pokemon/
 └── shared/
 ```
 
 ## Architecture Patterns
+
+### Module Organization Guidelines
+
+- **Module Boundaries**: Each module represents a distinct domain/feature (auth, pokemon, admin, etc.)
+- **Route Naming**: Files named by their URL path - `login.tsx` for `/auth/login`, not `_index.tsx`
+- **Dynamic Route Naming**: Use semantic names describing the route's purpose - `detail.tsx` for detail pages, `edit.tsx` for edit pages
+- **Module Layouts**: `layout.tsx` in module folders wraps all routes within that module
+- **Module Resources**: Each module owns its components, hooks, types, slices within its folder
+- **Cross-Module Dependencies**: Prefer shared utilities in `app/shared/` over direct imports between modules
+- **Module Size**: Split large modules into sub-modules when they exceed 10-15 route files
+
+### Route Configuration Example
+
+```typescript
+// routes.ts
+export default [
+    layout("/auth", "routes/auth/layout.tsx", [
+        route("login", "routes/auth/login.tsx"), // /auth/login
+        route("register", "routes/auth/register.tsx"), // /auth/register
+        route("forgot-password", "routes/auth/forgot-password.tsx"), // /auth/forgot-password
+    ]),
+    layout("routes/layout.tsx", [
+        index("routes/home.tsx"), // /
+        route("/pokemon", "routes/pokemon/layout.tsx", [
+        index("routes/pokemon/list.tsx"), // /pokemon
+        route(":name", "routes/pokemon/detail.tsx"), // /pokemon/:name
+        ]),
+        route("/admin", "routes/admin/layout.tsx", [
+        index("routes/admin/dashboard.tsx"), // /admin
+        route("users", "routes/admin/users.tsx"), // /admin/users
+        route("users/:id/edit", "routes/admin/edit-user.tsx"), // /admin/users/:id/edit
+        ]),
+        route("*", "routes/not-found.tsx"), // 404
+    ]),
+] satisfies RouteConfig
+```
 
 ### Components vs Containers vs Custom Hooks
 
@@ -89,10 +134,21 @@ tests/
 
 ### Naming Conventions
 
-- Components: PascalCase (`UserProfile.tsx`)
-- Hooks: camelCase with `use` prefix (`useUserData.ts`)
-- Services: camelCase with `Service` suffix (`userService.ts`)
-- Barrels: always `index.ts`
+- **Route Files**: kebab-case matching URL path (`login.tsx`, `forgot-password.tsx`)
+- **Dynamic Routes**: Semantic names describing purpose (`detail.tsx`, `edit.tsx`, `settings.tsx`)
+- **Module Layouts**: Always `layout.tsx` within module folders
+- **Components**: PascalCase (`UserProfile.tsx`)
+- **Hooks**: camelCase with `use` prefix (`useUserData.ts`)
+- **Services**: camelCase with `Service` suffix (`userService.ts`)
+- **Modules**: kebab-case folder names (`auth/`, `user-profile/`)
+- **Barrels**: always `index.ts`
+
+### Common Dynamic Route Names
+
+- `detail.tsx` - For showing individual item details (`/pokemon/:name`, `/users/:id`)
+- `edit.tsx` - For editing individual items (`/users/:id/edit`, `/posts/:id/edit`)
+- `settings.tsx` - For settings pages (`/users/:id/settings`)
+- `dashboard.tsx` - For dashboard/overview pages (`/admin`, `/user/:id/dashboard`)
 
 ## Data Management
 
