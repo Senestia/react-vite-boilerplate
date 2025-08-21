@@ -39,6 +39,35 @@ graph LR
 
 1. **Route** loads → 2. **Client Loader** prefetches → 3. **React Query** caches → 4. **Component** renders → 5. **Zustand** manages UI state
 
+## 🔄 Server State vs Client State
+
+**Clear separation for better architecture** 🎯
+
+| 🌐 **Server State** | 🖥️ **Client State** |
+| ------------------- | ------------------- |
+| React Query handles | Zustand manages     |
+| API data & caching  | UI interactions     |
+| Background sync     | Form inputs         |
+| Error boundaries    | Modal states        |
+
+```tsx
+// 🌐 SERVER STATE - React Query
+const { data: pokemon } = useQuery({
+  queryKey: ["pokemon", name],
+  queryFn: () => pokemonRepository.fetchByName(name),
+})
+
+// 🖥️ CLIENT STATE - Zustand
+const { searchQuery, viewMode, setSearchQuery } = usePokemonUiStore()
+```
+
+**Why This Separation?**
+
+- 🎯 **Single Responsibility** - Each tool handles what it does best
+- ⚡ **Performance** - React Query optimizes server data, Zustand optimizes UI state
+- 🔄 **Sync Strategy** - Server state auto-syncs, client state stays local
+- 🧪 **Testing** - Mock server calls vs test UI interactions separately
+
 ## 📂 Structure
 
 ```
