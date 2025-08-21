@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query"
 import { isRouteErrorResponse } from "react-router"
 import ErrorView from "../../shared/components/ErrorView"
-import type { Route } from "./+types/index"
+import type { Route } from "./+types/list"
 import { WizardExplorer } from "./containers/WizardExplorer"
 import { spellTypesKeys } from "./hooks"
 import { wizardRepository } from "./repositories/wizard"
@@ -17,7 +17,7 @@ export const clientLoader =
     return null
   }
 
-export default function WizardRoute() {
+export default function WizardListRoute() {
   return <WizardExplorer />
 }
 

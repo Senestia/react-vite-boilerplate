@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query"
 import { isRouteErrorResponse } from "react-router"
 import ErrorView from "../../shared/components/ErrorView"
-import type { Route } from "./+types/index"
+import type { Route } from "./+types/list"
 import { PokemonExplorer } from "./containers/PokemonExplorer"
 import { pokemonRepository } from "./repositories/pokemon"
 import { usePokemonUiStore } from "./stores/uiStore"
@@ -25,7 +25,7 @@ export const clientLoader =
     return null
   }
 
-export default function PokemonRoute() {
+export default function PokemonListRoute() {
   // Data fetching lives in PokemonExplorer (container)
   // Route stays presentational and relies on ErrorBoundary
   // Loader above seeds the cache for the first page

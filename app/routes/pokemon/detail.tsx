@@ -1,12 +1,12 @@
 import { QueryClient } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { isRouteErrorResponse, useParams } from "react-router"
-import ErrorView from "../../../shared/components/ErrorView"
-import { pokemonDetailKeys, usePokemonDetail } from "../hooks"
-import { pokemonRepository } from "../repositories/pokemon"
-import { usePokemonUiStore } from "../stores/uiStore"
-import type { Route } from "./+types/index"
+import ErrorView from "../../shared/components/ErrorView"
+import type { Route } from "./+types/detail"
 import { PokemonDetailsContainer } from "./containers/PokemonDetailsContainer"
+import { pokemonDetailKeys, usePokemonDetail } from "./hooks"
+import { pokemonRepository } from "./repositories/pokemon"
+import { usePokemonUiStore } from "./stores/uiStore"
 
 export const clientLoader =
   (queryClient: QueryClient) =>
@@ -22,7 +22,7 @@ export const clientLoader =
     return null
   }
 
-export default function PokemonDetailsRoute() {
+export default function PokemonDetailRoute() {
   const { name = "" } = useParams<{ name: string }>()
   const setSelectedName = usePokemonUiStore(
     (state: { setSelectedName: (name: string) => void }) =>

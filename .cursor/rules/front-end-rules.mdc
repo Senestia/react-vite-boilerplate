@@ -16,18 +16,29 @@ Concise, enforceable rules for building front-end features in this React Router 
 
 ```
 app/routes/
-├── home.tsx
-├── not-found.tsx
+├── home/
+│   ├── home.tsx              # /home route
+│   └── components/           # Module-specific components only
+├── notFound/
+│   ├── not-found.tsx         # catch-all route
+│   └── components/           # Module-specific components only
 ├── auth/
 │   ├── layout.tsx
 │   ├── login.tsx             # /auth/login
 │   ├── register.tsx          # /auth/register
-│   └── components/, hooks/, types/
+│   ├── components/           # Module-specific components only
+│   ├── containers/           # Module-specific containers only
+│   ├── hooks/                # Module-specific hooks only
+│   └── types/                # Module-specific types only
 ├── pokemon/
 │   ├── layout.tsx
 │   ├── list.tsx              # /pokemon
 │   ├── detail.tsx            # /pokemon/:name
-│   └── components/, hooks/, types/
+│   ├── components/           # Module-specific components only
+│   ├── containers/           # Module-specific containers only
+│   ├── hooks/                # Module-specific hooks only
+│   └── types/                # Module-specific types only
+│   └── repositories/, stores/ # Module-specific for others folder
 └── shared/
 ```
 
@@ -42,6 +53,37 @@ app/routes/
 - Extract all React Query logic into custom hooks
 - Create reusable utility hooks for common patterns (intersection observers, form validation, auth guards)
 - Co-locate hooks in `hooks/` folder; use barrels for 3+ related hooks
+
+**Component Organization**
+
+- **Single `/components` folder per module**: ALL components within a module must be in ONE `/components` folder
+- **No component sub-folders**: Never create `detail-components/`, `list-components/`, `form-components/`, or similar subdivisions
+- **Flat structure**: Keep components flat within `/components` - use descriptive names instead of nested folders
+- **Module isolation**: Components in `/components` are module-specific; promote to `app/shared/components/` if used across modules
+
+```
+✅ CORRECT - Single /components folder:
+pokemon/
+├── list.tsx
+├── detail.tsx
+├── components/
+│   ├── PokemonList.tsx
+│   ├── PokemonDetails.tsx
+│   ├── AbilitiesSection.tsx
+│   └── StatsSection.tsx
+└── containers/
+
+❌ WRONG - Multiple component folders:
+pokemon/
+├── list.tsx
+├── detail.tsx
+├── list-components/
+│   └── PokemonList.tsx
+├── detail-components/
+│   ├── PokemonDetails.tsx
+│   └── AbilitiesSection.tsx
+└── containers/
+```
 
 **Naming Conventions**
 

@@ -6,17 +6,17 @@ import {
 } from "@react-router/dev/routes"
 
 export default [
-  // Public login route (no layout)
-  route("/login", "routes/login/_index.tsx"),
+  // Public auth routes (no layout)
+  route("/login", "routes/auth/login.tsx"),
 
   // Protected routes with layout
   layout("routes/layout.tsx", [
-    index("routes/home/_index.tsx"),
-    route("/wizard", "routes/wizard/_index.tsx"),
+    index("routes/home/home.tsx"),
+    route("/wizard", "routes/wizard/list.tsx"),
     route("/pokemon", "routes/pokemon/layout.tsx", [
-      index("routes/pokemon/_index.tsx"),
-      route(":name", "routes/pokemon/$name/_index.tsx"),
+      index("routes/pokemon/list.tsx"),
+      route(":name", "routes/pokemon/detail.tsx"),
     ]),
-    route("*", "routes/notFound/_index.tsx"),
+    route("*", "routes/notFound/not-found.tsx"),
   ]),
 ] satisfies RouteConfig
