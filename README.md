@@ -80,7 +80,7 @@ app/routes/
 ### 🗺️ Route Configuration
 
 ```typescript
-// routes.ts - YOUR routes, YOUR way
+// routes.ts
 export default [
   layout("routes/layout.tsx", [
     index("routes/home/home.tsx"), // 🏠 /
@@ -145,6 +145,15 @@ function PokemonCard() {
   return <div>Found {data?.name}!</div>
 }
 ```
+
+## 🌐 State Separation Strategy
+
+| State Type    | What Goes Here             | Files                 |
+| ------------- | -------------------------- | --------------------- |
+| 🌍 **Server** | Remote data, API responses | `*Api.ts` (RTK Query) |
+| 💻 **Client** | UI state, user preferences | `*UiSlice.ts` (Redux) |
+
+> 🎯 **Keep it simple**: Server data in RTK Query, UI state in Redux slices
 
 ## 🏗️ Architecture Guidelines
 
