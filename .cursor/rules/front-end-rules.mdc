@@ -9,36 +9,25 @@ Concise, enforceable rules for building front-end features in this React Router 
 
 ## Structure & Organization
 
-- Route entry per folder: `_index.tsx`
-- Segment layout per folder: `layout.tsx` (presentational only; one per segment)
-- Page folders may include: `components/`, `containers/`, `hooks/`, `services/`, `constants/`, `repositories/`, `stores/`, `types/`, `utils/`
-- Shared, reusable assets live in `app/shared/`
-- Tests live under `tests/`, mirroring feature structure
+- **Module-based**: Group routes by domain/feature (auth, pokemon)
+- **Route files**: Named by URL path (login.tsx) not \_index.tsx
+- **Semantic dynamic routes**: detail.tsx, edit.tsx, settings.tsx
+- **Module layouts**: layout.tsx wraps all routes in module
 
 ```
 app/routes/
-├── home/
-│   ├── components/
-│   └── _index.tsx             # Home route component
-├── notFound/
-│   ├── components/
-│   └── _index.tsx             # Page not found route component
-├── [page-name]/
-│   │   └── $[path]           # Optional nested dynamic route
-│   ├── layout.tsx            # Optional layout route for this segment
-│   ├── _index.tsx             # Main route component
-│   ├── components/           # Page-specific UI components
-│   ├── containers/           # Page-specific business logic containers
-│   ├── hooks/                # Page-specific custom hooks
-│   ├── services/             # Page-specific API services
-│   ├── constants/            # Page-specific constants and static data
-│   ├── repositories/         # Page-specific data provider definitions
-│   ├── stores/               # Page-specific Zustand stores
-│   ├── types/                # Page-specific TypeScript definitions
-│   └── utils/                # Page-specific utility functions
-└── layout/
-tests/
-├── routes/[page-name]/
+├── home.tsx
+├── not-found.tsx
+├── auth/
+│   ├── layout.tsx
+│   ├── login.tsx             # /auth/login
+│   ├── register.tsx          # /auth/register
+│   └── components/, hooks/, types/
+├── pokemon/
+│   ├── layout.tsx
+│   ├── list.tsx              # /pokemon
+│   ├── detail.tsx            # /pokemon/:name
+│   └── components/, hooks/, types/
 └── shared/
 ```
 
@@ -56,10 +45,11 @@ tests/
 
 **Naming Conventions**
 
-- Components: PascalCase (`UserProfile.tsx`)
-- Hooks: camelCase with `use` prefix (`useUserData.ts`)
-- Services: camelCase with `Service` suffix (`userService.ts`)
-- Barrels: always `index.ts`
+- **Routes**: kebab-case (`login.tsx`, `forgot-password.tsx`)
+- **Dynamic Routes**: `detail.tsx`, `edit.tsx`, `settings.tsx`, `dashboard.tsx`
+- **Components**: PascalCase (`UserProfile.tsx`)
+- **Hooks**: camelCase with `use` prefix (`useUserData.ts`)
+- **Modules**: kebab-case folders (`auth/`, `user-profile/`)
 
 **Barrels & Types**
 
@@ -78,11 +68,9 @@ tests/
 
 **React Query**
 
-- Single `QueryClient` in `app/root.tsx`; use `useQuery`/`useInfiniteQuery`/`useMutation`
-- **Always extract React Query logic into custom hooks**; never use directly in components/containers
+- Extract React Query logic into custom hooks; never use directly in components
 - Define stable query keys: `const keys = { list: (limit) => ["pokemon", "list", limit] }`
 - Handle errors via `ErrorBoundary`; surface loading/empty states in components
-- Export query keys from hooks for clientLoader consistency
 
 **Zustand State**
 
@@ -111,15 +99,11 @@ export const clientLoader =
 
 ## Development Practices
 
-**Shared vs Route-Specific Guidelines**
+**Shared vs Module-Specific**
 
-- **When to promote to `app/shared/`**: Files used by 2+ routes or outside their origin route scope
-  - Cross-route hooks (auth, common business logic) → `app/shared/hooks/`
-  - Cross-route repositories (auth, shared APIs) → `app/shared/repositories/`
-  - Cross-route components (layout, common UI) → `app/shared/components/`
-  - Cross-route utilities, stores, types → respective `app/shared/` folders
-- **Keep route-specific**: Files used only within their route segment
-- **Refactor trigger**: When importing `../../routes/[other-route]/` - move to shared instead
+- **Promote to `app/shared/`**: Files used by 2+ modules
+- **Keep module-specific**: Files used only within their module
+- **Refactor trigger**: When importing across modules - move to shared
 
 **Code Quality**
 
