@@ -2,9 +2,7 @@
 
 # ⚡️ React Vite Boilerplate
 
-### 🚀 React Router 7 + Redux Toolkit = Developer Joy
-
-_Stop fighting with file-based routing. Start loving programmatic control._
+### 🚀 React Router 7 + Redux Toolkit
 
 [![React](https://img.shields.io/badge/React-19-61dafb?logo=react)](https://react.dev)
 [![React Router](https://img.shields.io/badge/React%20Router-7-ca4245?logo=react-router)](https://reactrouter.com)
