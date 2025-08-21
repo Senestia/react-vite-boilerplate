@@ -10,7 +10,7 @@ Concise, enforceable rules for building front-end features in this repo.
 ## Tech Stack & Mode
 
 - Vite + React Router v7 (Framework Mode, no SSR) + Tailwind CSS v4 + TypeScript
-- Follow React Router v7 best practices; use file-based routing under `app/`
+- Follow React Router v7 best practices; use **programmatic routing** with explicit route configuration in `routes.ts` (NOT file-based routing)
 - Use Redux Toolkit with RTK Query for state management and data fetching
 
 ## Structure & Organization
@@ -18,14 +18,14 @@ Concise, enforceable rules for building front-end features in this repo.
 - **Module-based**: Group routes by domain/feature (auth, pokemon)
 - **Route files**: Named by URL path (login.tsx) not \_index.tsx
 - **Semantic dynamic routes**: detail.tsx, edit.tsx, settings.tsx
-- **Module layouts**: layout.tsx wraps all routes in module
+- **Module layouts**: layout.tsx or [scope]-layout.tsx wraps all routes in module
 
 ```
 app/routes/
 ├── home/
 │   ├── home.tsx                       # / route
 │   └── components/                    # Module-specific components only
-├── notFound/
+├── not-found/
 │   ├── not-found.tsx                  # catch-all route
 │   └── components/                    # Module-specific components only
 ├── auth/                              # Authentication module
@@ -69,13 +69,15 @@ tests/
 
 - **Module Boundaries**: Each module represents a distinct domain/feature (auth, pokemon, admin, etc.)
 - **Route Naming**: Files named by their URL path - `login.tsx` for `/auth/login`, not `_index.tsx`
-- **Dynamic Route Naming**: Use semantic names describing the route's purpose - `detail.tsx` for detail pages, `edit.tsx` for edit pages. NEVER use React Router file-based patterns like `$name/` folders - all components and containers should be organized within the module's main `components/` and `containers/` folders
-- **Module Layouts**: `layout.tsx` in module folders wraps all routes within that module
+- **Dynamic Route Naming**: Use semantic names describing the route's purpose - `detail.tsx` for detail pages, `edit.tsx` for edit pages. Since we use programmatic routing (NOT file-based), avoid file-based patterns like `$name/` folders - all components and containers should be organized within the module's main `components/` and `containers/` folders
+- **Module Layouts**: `layout.tsx` or `[scope]-layout.tsx` in module folders wraps all routes within that module
 - **Module Resources**: Each module owns its components, hooks, types, slices within its folder
 - **Cross-Module Dependencies**: Prefer shared utilities in `app/shared/` over direct imports between modules
 - **Module Size**: Split large modules into sub-modules when they exceed 10-15 route files
 
 ### Route Configuration Example
+
+**This is programmatic routing - routes are explicitly defined in `routes.ts`, NOT derived from file structure:**
 
 ```typescript
 // routes.ts
@@ -142,7 +144,7 @@ export default [
 
 - **Route Files**: kebab-case matching URL path (`login.tsx`, `forgot-password.tsx`)
 - **Dynamic Routes**: Semantic names describing purpose (`detail.tsx`, `edit.tsx`, `settings.tsx`)
-- **Module Layouts**: Always `layout.tsx` within module folders
+- **Module Layouts**: `layout.tsx` or `[scope]-layout.tsx` within module folders
 - **Components**: PascalCase (`UserProfile.tsx`)
 - **Hooks**: camelCase with `use` prefix (`useUserData.ts`)
 - **Services**: camelCase with `Service` suffix (`userService.ts`)
@@ -158,7 +160,7 @@ export default [
 
 ### Anti-Patterns to Avoid
 
-- **NEVER use `$name/`, `$id/`, or similar parameter-based folder structures** - these are React Router file-based routing patterns that violate our semantic naming convention
+- **NEVER use `$name/`, `$id/`, or similar parameter-based folder structures** - these are React Router file-based routing patterns that don't apply to our programmatic routing approach
 - **NEVER organize components/containers by route parameters** - all components and containers belong in the module's main folders
 - **ALWAYS use semantic route files** (`detail.tsx`, `edit.tsx`) that import from the module's shared `components/` and `containers/` folders
 
@@ -219,7 +221,7 @@ export default [
 
 ## React Router v7 & Data Loading
 
-- File-based routing; lazy-load routes by default
+- **Programmatic routing** configuration in `routes.ts` (NOT file-based routing); lazy-load routes by default
 - Loaders: only for URL-driven or must-block-first-paint data
 - Actions: for form submissions/mutations
 - Non-blocking data: fetch in containers/hooks via RTK Query

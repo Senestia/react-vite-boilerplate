@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react"
 import { Provider } from "react-redux"
 import { describe, expect, it } from "vitest"
-import WizardExplorerRoute from "~/routes/wizard/explorer"
+import WizardExplorerRoute from "~/routes/wizard/wizard"
 import { store } from "~/shared/store"
 
 describe("WizardExplorerRoute", () => {

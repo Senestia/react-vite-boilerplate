@@ -1,426 +1,184 @@
 <div align="center">
 
-# ⚡️ React Vite Boilerplate (RR7 SPA)
+# ⚡️ React Vite Boilerplate
 
-Modern, production-ready React boilerplate using React Router 7 Framework Mode (SPA), Redux Toolkit + RTK Query, Vite, Tailwind CSS v4, and TypeScript.
+### 🚀 React Router 7 + Redux Toolkit = Developer Joy
 
-🧭 File-based routing • 🗄️ Redux Toolkit • 🔄 Infinite scroll • 🛡️ Error boundaries • 🎨 Theming • 🌍 i18n
+_Stop fighting with file-based routing. Start loving programmatic control._
+
+[![React](https://img.shields.io/badge/React-19-61dafb?logo=react)](https://react.dev)
+[![React Router](https://img.shields.io/badge/React%20Router-7-ca4245?logo=react-router)](https://reactrouter.com)
+[![Redux Toolkit](https://img.shields.io/badge/Redux%20Toolkit-2.0-764abc?logo=redux)](https://redux-toolkit.js.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6?logo=typescript)](https://typescriptlang.org)
 
 </div>
 
 ---
 
-## 🚀 Tech Stack
+## 🎯 Stack Benefits
 
-- ⚛️ **React 19**
-- 🧭 **React Router 7 (Framework Mode)** — SPA by default
-- 🏎️ **Vite 6**
-- 🎨 **Tailwind CSS v4**
-- 🔷 **TypeScript** (strict)
-- 🗄️ **Redux Toolkit** with RTK Query for state management & data fetching
-- 🌍 **i18next** (optional)
+<table>
+<tr>
+<td width="50%">
 
-## ✨ Highlights
+### 🧭 **React Router 7**
 
-- **SPA mode** with React Router 7 Framework Mode (no SSR)
-- **File-based routing** with segment layouts and dynamic routes
-- **clientLoader/ErrorBoundary** per-route for great UX
-- **Redux Toolkit + RTK Query** for unified state management and data fetching
-- **Infinite scroll** implementation with automatic caching and request deduplication
-- **Tailwind v4** theme-ready styles (light/dark)
+✅ Programmatic routing (no magic folders!)  
+✅ Built-in data loading  
+✅ Perfect error boundaries  
+✅ SPA optimized
 
-## 📁 Folder Structure
+</td>
+<td width="50%">
 
-From our front-end rules, routes and tests are organized like this:
+### 🗄️ **Redux Toolkit + RTK Query**
+
+✅ State + API in one place  
+✅ Auto-caching & deduplication  
+✅ TypeScript heaven  
+✅ DevTools built-in
+
+</td>
+</tr>
+</table>
+
+## 🛠️ Technology Stack
+
+```
+⚛️  React 19          🧭  React Router 7      🏎️  Vite 6
+🎨  Tailwind v4       🔷  TypeScript         🗄️  Redux Toolkit
+```
+
+## 📂 Project Structure
 
 ```
 app/routes/
-├── home/
-│   ├── home.tsx              # / route
-│   └── components/           # Module-specific components only
-├── notFound/
-│   ├── not-found.tsx         # catch-all route
-│   └── components/           # Module-specific components only
-├── auth/                              # Authentication module
-│   ├── layout.tsx                     # Auth module layout (wraps all auth routes)
-│   ├── login.tsx                      # /auth/login route
-│   ├── register.tsx                   # /auth/register route
-│   ├── forgot-password.tsx            # /auth/forgot-password route
-│   ├── components/                    # Auth-specific UI components
-│   ├── hooks/                         # Auth-specific custom hooks
-│   ├── types/                         # Auth-specific TypeScript definitions
-│   └── slices/                        # Auth-specific Redux slices
-├── pokemon/                           # Pokemon module
-│   ├── layout.tsx                     # Pokemon module layout (wraps all pokemon routes)
-│   ├── list.tsx                       # /pokemon route (list page)
-│   ├── detail.tsx                     # /pokemon/:name route (detail page)
-│   ├── components/                    # Pokemon-specific UI components
-│   ├── containers/                    # Pokemon-specific containers
-│   ├── hooks/                         # Pokemon-specific custom hooks
-│   ├── slices/                        # Pokemon-specific Redux slices
-│   └── types/                         # Pokemon-specific TypeScript definitions
-├── [module-name]/                     # Additional modules follow same pattern
-│   ├── layout.tsx                     # Module layout (optional)
-│   ├── [route-name].tsx               # Module routes named by URL path
-│   ├── [semantic-name].tsx            # Dynamic routes with semantic names
-│   └── [folders]/                     # Module-specific resources
-└── layout.tsx                         # Root layout (optional)
-tests/
-├── routes/
-│   ├── auth/                          # Mirror module structure
-│   └── pokemon/
-└── shared/
+├── 🏠 home/
+│   ├── home.tsx                        → / route
+│   └── components/                     → Home-specific UI
+├── 🚫 not-found/
+│   ├── not-found.tsx                   → catch-all route
+│   └── components/                     → 404 UI components
+├── 📁 [module]/                        → Feature module
+│   ├── layout.tsx                      → Wraps /[module]/* (or [scope]-layout.tsx)
+│   ├── list.tsx                        → /[module]
+│   ├── detail.tsx                      → /[module]/:name
+│   ├── 🧩 components/                  → UI pieces
+│   ├── 📦 containers/                  → Smart components
+│   ├── 🎣 hooks/                       → Business logic
+│   ├── 🏪 slices/                      → Redux + API
+│   └── 📝 types/                       → TypeScript defs
+├── layout.tsx                          → Root layout (or [scope]-layout.tsx)
+└── 🔗 shared/                          → Cross-module utilities
+    ├── components/                     → Reusable UI
+    ├── store/                          → Redux config
+    └── utils/                          → Common helpers
 ```
 
-## 🧭 React Router 7 (Framework Mode, SPA)
+> 💡 **No more** `$id/index.tsx` madness. Just clean, semantic names!
 
-### 🔧 SPA configuration
+## ⚡️ React Router 7 Features
 
-`react-router.config.ts`
+### 🗺️ Route Configuration
 
-```ts
-import type { Config } from "@react-router/dev/config"
-
-export default {
-  // Enable SPA mode (no SSR)
-  ssr: false,
-} satisfies Config
-```
-
-### 🗺️ Route definitions
-
-`app/routes.ts`
-
-```ts
-import {
-  index,
-  layout,
-  route,
-  type RouteConfig,
-} from "@react-router/dev/routes"
-
+```typescript
+// routes.ts - YOUR routes, YOUR way
 export default [
-  layout("/auth", "routes/auth/layout.tsx", [
-    route("login", "routes/auth/login.tsx"), // /auth/login
-    route("register", "routes/auth/register.tsx"), // /auth/register
-    route("forgot-password", "routes/auth/forgot-password.tsx"), // /auth/forgot-password
-  ]),
   layout("routes/layout.tsx", [
-    index("routes/home/home.tsx"), // /
+    index("routes/home/home.tsx"), // 🏠 /
     route("/pokemon", "routes/pokemon/layout.tsx", [
-      index("routes/pokemon/list.tsx"), // /pokemon
-      route(":name", "routes/pokemon/detail.tsx"), // /pokemon/:name
+      index("routes/pokemon/list.tsx"), // 📜 /pokemon
+      route(":name", "routes/pokemon/detail.tsx"), // 🔍 /pokemon/pikachu
     ]),
-    route("/admin", "routes/admin/layout.tsx", [
-      index("routes/admin/dashboard.tsx"), // /admin
-      route("users", "routes/admin/users.tsx"), // /admin/users
-      route("users/:id/edit", "routes/admin/edit-user.tsx"), // /admin/users/:id/edit
-    ]),
-    route("*", "routes/notFound/not-found.tsx"), // 404
+    route("*", "routes/notFound/not-found.tsx"), // 🚫 404
   ]),
 ] satisfies RouteConfig
 ```
 
-### 🧭 RTK Query prefetching
+### 🚀 Data Loading
 
-`app/routes/pokemon/detail.tsx`
-
-```tsx
-import type { Route } from "./+types/detail"
-import { store } from "../../shared/store"
-import { pokemonApi } from "./slices/pokemonApi"
-import { PokemonDetailsContainer } from "./containers/PokemonDetailsContainer"
-
+```typescript
+// Load data BEFORE the page shows up
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-  const name = params.name?.toString() ?? ""
-  if (!name) throw new Response("Missing pokemon name", { status: 400 })
-  store.dispatch(
-    pokemonApi.endpoints.getPokemonByName.initiate(name, {
-      forceRefetch: false,
-    }),
-  )
-  return null
-}
-
-export default function PokemonDetailRoute() {
-  return <PokemonDetailsContainer />
+  store.dispatch(pokemonApi.endpoints.getPokemonByName.initiate(params.name!))
+  return null // ← Magic happens here
 }
 ```
 
-### 🧩 Segment layout
+## 🏪 Redux Toolkit Features
 
-`app/routes/layout.tsx`
+### ⚙️ Store Configuration
 
-```tsx
-import { Outlet } from "react-router"
-import { SiteHeader } from "../shared/components/SiteHeader"
-
-export default function AppLayout() {
-  return (
-    <>
-      <SiteHeader />
-      <main className="container mx-auto p-4">
-        <Outlet />
-      </main>
-    </>
-  )
-}
-```
-
-### 🛡️ Error boundaries
-
-Each route (or layout) can export an `ErrorBoundary`. Example:
-
-```tsx
-import type { Route } from "./+types/index"
-import { isRouteErrorResponse } from "react-router"
-
-export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let details = "Something went wrong."
-  if (isRouteErrorResponse(error)) details = error.statusText || details
-  else if (error instanceof Error && error.message) details = error.message
-  return <div role="alert">{details}</div>
-}
-```
-
-## 🏗️ Architecture Patterns
-
-### Components vs Containers vs Custom Hooks
-
-Our architecture separates concerns into three distinct layers:
-
-- **Components**: Presentational only (no data fetching/business logic, minimal state)
-- **Containers**: Compose components and custom hooks; handle UI-specific concerns (refs, Intersection Observers)
-- **Custom Hooks**: Business logic, Redux state management, RTK Query calls, complex side effects
-
-**Key Rules:**
-
-- Never mix fetching and UI in the same file
-- Prefer custom hooks for business logic encapsulation
-- Components focus purely on rendering
-- Containers orchestrate components and hooks
-
-### Custom Hook Organization
-
-- Place in `hooks/` folders within route segments
-- Name with `use` prefix + clear functionality (`useInfiniteScroll`, `usePokemonFilters`)
-- Export from barrel files when folder has 3+ hooks
-- Pure business logic only - no JSX, refs, or DOM manipulation
-- One primary concern per hook; avoid deep nesting
-
-### Naming Conventions
-
-**Route Files:**
-
-- **Route Files**: kebab-case matching URL path (`login.tsx`, `forgot-password.tsx`)
-- **Dynamic Routes**: Semantic names describing purpose (`detail.tsx`, `edit.tsx`, `settings.tsx`)
-- **Module Layouts**: Always `layout.tsx` within module folders
-
-**Components & Code:**
-
-- **Components**: PascalCase (`UserProfile.tsx`)
-- **Hooks**: camelCase with `use` prefix (`useUserData.ts`)
-- **Services**: camelCase with `Service` suffix (`userService.ts`)
-- **Modules**: kebab-case folder names (`auth/`, `user-profile/`)
-- **Barrels**: always `index.ts`
-
-**Common Dynamic Route Names:**
-
-- `detail.tsx` - For showing individual item details (`/pokemon/:name`, `/users/:id`)
-- `edit.tsx` - For editing individual items (`/users/:id/edit`, `/posts/:id/edit`)
-- `settings.tsx` - For settings pages (`/users/:id/settings`)
-- `dashboard.tsx` - For dashboard/overview pages (`/admin`, `/user/:id/dashboard`)
-
-## 🗄️ Redux Toolkit + RTK Query Setup
-
-### 📊 Redux Store Configuration
-
-`app/shared/store/index.ts`
-
-```ts
-import { configureStore } from "@reduxjs/toolkit"
-import { setupListeners } from "@reduxjs/toolkit/query"
-import { pokemonApi } from "~/routes/pokemon/slices/pokemonApi"
-import { pokemonUiSlice } from "~/routes/pokemon/slices/pokemonUiSlice"
-import { wizardUiSlice } from "~/routes/wizard/slices/wizardUiSlice"
-
+```typescript
 export const store = configureStore({
   reducer: {
-    [pokemonApi.reducerPath]: pokemonApi.reducer,
+    [pokemonApi.reducerPath]: pokemonApi.reducer, // ← API magic
     pokemonUi: pokemonUiSlice.reducer,
-    wizardUi: wizardUiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(pokemonApi.middleware),
+    getDefaultMiddleware().concat(pokemonApi.middleware), // ← More magic
 })
-
-setupListeners(store.dispatch)
-
-export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
-export type AppStore = typeof store
 ```
 
-### 🔧 RTK Query API Slice
+### 🎣 RTK Query Setup
 
-`app/routes/pokemon/slices/pokemonApi.ts`
-
-```ts
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-import type { PokemonDetail, PokemonListPage } from "~/routes/pokemon/types"
-
+```typescript
 export const pokemonApi = createApi({
-  reducerPath: "pokemonApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "https://pokeapi.co/api/v2",
-    timeout: 10000,
-  }),
-  tagTypes: ["Pokemon", "PokemonList"],
+  baseQuery: fetchBaseQuery({ baseUrl: "https://pokeapi.co/api/v2" }),
   endpoints: (builder) => ({
-    getPokemonListPage: builder.query<
-      PokemonListPage,
-      { limit: number; offset: number }
-    >({
-      query: ({ limit, offset }) => ({
-        url: "/pokemon",
-        params: { limit, offset },
-      }),
-      transformResponse: (response: any, _meta, args) => ({
-        data: response.results,
-        hasMore: response.next !== null,
-        nextOffset: response.next ? args.offset + args.limit : null,
-        totalCount: response.count,
-      }),
-    }),
-    getPokemonByName: builder.query<PokemonDetail, string>({
-      query: (name) => `/pokemon/${encodeURIComponent(name.toLowerCase())}`,
-      transformResponse: (response: any): PokemonDetail => ({
-        id: response.id,
-        name: response.name,
-        height: response.height,
-        weight: response.weight,
-        imageUrl: response.sprites?.front_default ?? null,
-        types:
-          response.types?.map((t: any) => t.type?.name).filter(Boolean) ?? [],
-      }),
+    getPokemon: builder.query<Pokemon, string>({
+      query: (name) => `/pokemon/${name}`,
+      // ↑ That's it. No fetch, no loading states, no cache management.
     }),
   }),
 })
 
-export const { useGetPokemonListPageQuery, useGetPokemonByNameQuery } =
-  pokemonApi
+// Auto-generated hooks! 🪄
+export const { useGetPokemonQuery } = pokemonApi
 ```
 
-### 🏗️ Redux Provider Setup
+### 🎯 Usage Example
 
-`app/root.tsx`
+```typescript
+function PokemonCard() {
+  const { data, isLoading } = useGetPokemonQuery("pikachu")
 
-```tsx
-import { Provider } from "react-redux"
-import { store } from "./shared/store"
-
-export function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <html>
-      <body>
-        <Provider store={store}>{children}</Provider>
-      </body>
-    </html>
-  )
+  if (isLoading) return <div>⚡️ Loading...</div>
+  return <div>Found {data?.name}!</div>
 }
 ```
 
-### 🔄 Infinite Scroll Container Example
+## 🏗️ Architecture Guidelines
 
-`app/routes/pokemon/containers/PokemonExplorer.tsx`
+| Layer             | Does What          | Example                             |
+| ----------------- | ------------------ | ----------------------------------- |
+| 🧩 **Components** | Just render stuff  | `<PokemonCard />`                   |
+| 📦 **Containers** | Connect data to UI | `usePokemonQuery` + `<PokemonCard>` |
+| 🎣 **Hooks**      | Business logic     | `usePokemonFilters()`               |
 
-```tsx
-import { useCallback, useEffect, useState } from "react"
-import { useAppDispatch, useAppSelector } from "~/shared/store/hooks"
-import { useGetPokemonListPageQuery } from "../slices/pokemonApi"
-
-export function PokemonExplorer() {
-  const { limit, hasMore } = useAppSelector((state) => state.pokemonUi)
-  const [allPokemon, setAllPokemon] = useState([])
-  const [currentOffset, setCurrentOffset] = useState(0)
-
-  const { data, isLoading } = useGetPokemonListPageQuery({
-    limit,
-    offset: currentOffset,
-  })
-
-  useEffect(() => {
-    if (data) {
-      setAllPokemon((prev) =>
-        currentOffset === 0 ? data.data : [...prev, ...data.data],
-      )
-    }
-  }, [data, currentOffset])
-
-  const loadMore = useCallback(() => {
-    if (hasMore && !isLoading) {
-      setCurrentOffset((prev) => prev + limit)
-    }
-  }, [hasMore, isLoading, limit])
-
-  return (
-    <div>
-      {allPokemon.map((pokemon) => (
-        <div key={pokemon.name}>{pokemon.name}</div>
-      ))}
-      {/* Infinite scroll - automatically loads more when scrolling near bottom */}
-      {isLoadingMore && <div>Loading more Pokemon...</div>}
-      {!hasMore && <div>You&apos;ve seen all the Pokemon!</div>}
-    </div>
-  )
-}
-```
-
-## 🧪 Getting Started
-
-1. Install deps
+## 🚀 Quick Start
 
 ```bash
-npm install
+npm install    # ⬇️  Get the goods
+npm run dev    # 🔥 Fire it up
+npm run build  # 📦 Ship it
 ```
 
-2. Start dev server
+## 📜 Available Scripts
 
-```bash
-npm run dev
-```
-
-3. Build / Preview
-
-```bash
-npm run build && npm run start
-```
-
-## 🧭 Useful Scripts
-
-### 🚀 Development
-
-- `dev` — start dev server with HMR
-- `build` — production build
-- `start` — preview production build
-- `typecheck` — TypeScript diagnostics
-
-### 🧪 Testing
-
-- `test` — run unit tests (Vitest + RTL)
-- `test:watch` — run tests in watch mode
-- `test:coverage` — run tests with coverage report
-
-### 🔍 Code Quality
-
-- `lint` — check for ESLint errors (max 0 warnings)
-- `lint:fix` — fix auto-fixable ESLint issues
-- `lint:check` — alias for lint command
-- `format` — format code with Prettier
-- `format:check` — check if code is properly formatted
-- `quality` — run all quality checks (lint + typecheck + format)
-- `quality:fix` — fix linting and formatting issues
+| Command         | Does What              |
+| --------------- | ---------------------- |
+| `npm run dev`   | 🔥 Dev server with HMR |
+| `npm run build` | 📦 Production build    |
+| `npm test`      | 🧪 Run tests           |
+| `npm run lint`  | 🔍 Check code quality  |
 
 ---
 
-Built with ❤️ for fast, maintainable SPAs.
+<div align="center">
+
+**Stop wrestling with routing. Start building features.**
+
+_Built with ❤️ for developers who want control, not chaos._
+
+</div>
