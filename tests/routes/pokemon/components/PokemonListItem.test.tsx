@@ -1,28 +1,22 @@
 import { render, screen } from "@testing-library/react"
-import { MemoryRouter } from "react-router"
 import { describe, expect, it } from "vitest"
 import { PokemonListItem } from "~/routes/pokemon/components/PokemonListItem"
 
 describe("PokemonListItem", () => {
-  it("renders name and image from url id", () => {
-    const item = {
-      name: "bulbasaur",
-      url: "https://pokeapi.co/api/v2/pokemon/1/",
-    }
-    render(
-      <MemoryRouter>
-        <ul>
-          <PokemonListItem pokemon={item} />
-        </ul>
-      </MemoryRouter>,
-    )
+  const mockPokemon = {
+    id: 1,
+    name: "bulbasaur",
+    url: "https://pokeapi.co/api/v2/pokemon/1/",
+  }
 
-    expect(screen.getByText(/bulbasaur/i)).toBeInTheDocument()
-    // Click target is the whole item now; no inner link to assert
-    const img = screen.getByRole("img", { name: /bulbasaur/i })
-    expect(img).toHaveAttribute(
-      "src",
-      expect.stringContaining("/official-artwork/1.png"),
-    )
+  it("renders pokemon name correctly", () => {
+    render(<PokemonListItem pokemon={mockPokemon} />)
+    expect(screen.getByText("bulbasaur")).toBeInTheDocument()
+  })
+
+  it("renders as a link to pokemon detail", () => {
+    render(<PokemonListItem pokemon={mockPokemon} />)
+    const link = screen.getByRole("link")
+    expect(link).toHaveAttribute("href", "/pokemon/bulbasaur")
   })
 })

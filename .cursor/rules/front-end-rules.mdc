@@ -9,37 +9,29 @@ Concise, enforceable rules for building front-end features in this React Router 
 
 ## Structure & Organization
 
-- **Module-based**: Group routes by domain/feature (auth, pokemon)
-- **Route files**: Named by URL path (login.tsx) not \_index.tsx
-- **Semantic dynamic routes**: detail.tsx, edit.tsx, settings.tsx
-- **Module layouts**: layout.tsx wraps all routes in module
+- **Module-based**: Group routes by domain/feature area
+- **Route files**: Named by URL path, not \_index.tsx
+- **Semantic dynamic routes**: Use meaningful names (detail.tsx, edit.tsx, settings.tsx)
+- **Module layouts**: layout.tsx wraps all routes within a module
 
 ```
 app/routes/
-├── home/
-│   ├── home.tsx              # /home route
-│   └── components/           # Module-specific components only
-├── notFound/
-│   ├── not-found.tsx         # catch-all route
-│   └── components/           # Module-specific components only
-├── auth/
-│   ├── layout.tsx
-│   ├── login.tsx             # /auth/login
-│   ├── register.tsx          # /auth/register
-│   ├── components/           # Module-specific components only
-│   ├── containers/           # Module-specific containers only
-│   ├── hooks/                # Module-specific hooks only
-│   └── types/                # Module-specific types only
-├── pokemon/
-│   ├── layout.tsx
-│   ├── list.tsx              # /pokemon
-│   ├── detail.tsx            # /pokemon/:name
-│   ├── components/           # Module-specific components only
-│   ├── containers/           # Module-specific containers only
-│   ├── hooks/                # Module-specific hooks only
-│   └── types/                # Module-specific types only
-│   └── repositories/, stores/ # Module-specific for others folder
-└── shared/
+├── [feature-module]/                   # Domain/feature-based grouping
+│   ├── layout.tsx                      # Module layout (optional)
+│   ├── [route-name].tsx               # Route files named by URL segment
+│   ├── [dynamic-route].tsx            # Semantic names for dynamic routes
+│   ├── components/                     # Module-specific components only
+│   ├── containers/                     # Module-specific containers only
+│   ├── hooks/                          # Module-specific hooks only
+│   ├── types/                          # Module-specific types only
+│   ├── repositories/                   # Module-specific data access (optional)
+│   └── stores/                         # Module-specific state (optional)
+└── shared/                             # Cross-module utilities and components
+
+tests/
+├── routes/                             # MUST mirror app/routes structure exactly
+│   └── [feature-module]/
+└── shared/                             # Test utilities and shared component tests
 ```
 
 ## Code Architecture
@@ -61,33 +53,10 @@ app/routes/
 - **Flat structure**: Keep components flat within `/components` - use descriptive names instead of nested folders
 - **Module isolation**: Components in `/components` are module-specific; promote to `app/shared/components/` if used across modules
 
-```
-✅ CORRECT - Single /components folder:
-pokemon/
-├── list.tsx
-├── detail.tsx
-├── components/
-│   ├── PokemonList.tsx
-│   ├── PokemonDetails.tsx
-│   ├── AbilitiesSection.tsx
-│   └── StatsSection.tsx
-└── containers/
-
-❌ WRONG - Multiple component folders:
-pokemon/
-├── list.tsx
-├── detail.tsx
-├── list-components/
-│   └── PokemonList.tsx
-├── detail-components/
-│   ├── PokemonDetails.tsx
-│   └── AbilitiesSection.tsx
-└── containers/
-```
-
 **Naming Conventions**
 
 - **Routes**: kebab-case (`login.tsx`, `forgot-password.tsx`)
+- **Layout**: kebab-case with `layout` suffix (`layout.tsx`, `forgot-layout.tsx`), or root layout using `layout.tsx`
 - **Dynamic Routes**: `detail.tsx`, `edit.tsx`, `settings.tsx`, `dashboard.tsx`
 - **Components**: PascalCase (`UserProfile.tsx`)
 - **Hooks**: camelCase with `use` prefix (`useUserData.ts`)
@@ -164,8 +133,9 @@ export const clientLoader =
 
 **React Router v7**
 
-- File-based routing; loaders for URL-driven/blocking data only
+- Programmatic routing via `app/routes.ts`; loaders for URL-driven/blocking data only
 - Actions for form submissions; lazy-load routes; layout routes for guards
+- Use `route()`, `layout()`, and `index()` functions to define routes explicitly
 
 **Optimization**
 
@@ -179,7 +149,26 @@ export const clientLoader =
 - Utilities over custom CSS; mobile-first; semantic HTML
 - Organize in `app.css`, `components.css`, `utilities.css`
 
-**Testing**
+### Testing & Performance
 
-- Tests under `tests/` mirroring features; `*.test.tsx` naming
-- React Testing Library; test behavior; ≥80% coverage on critical paths
+- Tests under `tests/` mirroring features; use React Testing Library
+  **Test Structure Requirements:**
+
+- **MUST mirror route structure exactly** - `tests/routes/` mirrors `app/routes/`
+- **Test naming matches route naming** - `login.test.tsx` for `login.tsx`, `detail.test.tsx` for `detail.tsx`
+- **Module boundaries respected** - each route module has corresponding test module
+- **Component/container/hook tests** - place in same relative folders as source files
+
+**Test Organization:**
+
+- Route tests: `tests/routes/[module]/[route-name].test.tsx`
+- Component tests: `tests/routes/[module]/components/[Component].test.tsx`
+- Container tests: `tests/routes/[module]/containers/[Container].test.tsx`
+- Hook tests: `tests/routes/[module]/hooks/[hookName].test.ts`
+- Shared tests: `tests/shared/[category]/[item].test.tsx`
+
+**Performance:**
+
+- Use React Testing Library for all component tests
+- Code-split at route level; monitor bundle sizes
+- Track Core Web Vitals; maintain performance budget

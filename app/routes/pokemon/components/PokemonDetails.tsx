@@ -1,7 +1,7 @@
-import { TypeBadge } from "../../components/TypeBadge"
 import type { PokemonDetail } from "../../types"
 import { AbilitiesSection } from "./AbilitiesSection"
 import { StatsSection } from "./StatsSection"
+import { TypeBadge } from "./TypeBadge"
 
 interface PokemonDetailsProps {
   pokemon: PokemonDetail

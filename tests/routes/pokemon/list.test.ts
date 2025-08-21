@@ -1,9 +1,9 @@
 import { QueryClient } from "@tanstack/react-query"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { clientLoader } from "~/routes/pokemon/_index"
+import { clientLoader } from "~/routes/pokemon/list"
 
-describe("pokemon/index clientLoader (infinite prefetch)", () => {
+describe("pokemon/list clientLoader (infinite prefetch)", () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })

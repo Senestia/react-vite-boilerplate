@@ -1,380 +1,239 @@
 <div align="center">
 
-# ⚡️ React Vite Boilerplate (RR7 SPA)
+# ⚡️ React Router 7 + React Query + Zustand
 
-Modern, production-ready React boilerplate using React Router 7 Framework Mode (SPA), Vite, Tailwind CSS v4, and TypeScript.
+**The Ultimate React SPA Stack** 🚀
 
-🧭 File-based routing • 🔁 Client loaders + React Query • 📦 Zustand for UI state • 🧩 Layouts • 🛡️ Error boundaries • 🎨 Theming • 🌍 i18n
+</div>
+
+<div align="center">
+
+### 🧭 **React Router 7** • 🔄 **React Query** • 📦 **Zustand**
+
+_Programmatic routing • Server state • UI state • Lightning fast_
 
 </div>
 
 ---
 
-## 🚀 Tech Stack
+## 🎯 What You Get
 
-- ⚛️ **[React 19](https://react.dev)**
-- 🧭 **[React Router 7 (Framework Mode)](https://reactrouter.com/)** — SPA by default
-- 🏎️ **[Vite 6](https://vitejs.dev/)**
-- 🎨 **[Tailwind CSS v4](https://tailwindcss.com/)**
-- 🔷 **[TypeScript](https://www.typescriptlang.org/)** (strict)
-- 📦 **[@tanstack/react-query](https://tanstack.com/query/latest)**
-- 🗂️ **[Zustand](https://docs.pmnd.rs/zustand/getting-started/introduction)** (ephemeral UI state)
-- 🌍 **[i18next](https://www.i18next.com/)** (optional)
+| 🧭 **React Router 7** | 🔄 **React Query** | 📦 **Zustand**     |
+| --------------------- | ------------------ | ------------------ |
+| Programmatic routes   | Smart caching      | Lightweight stores |
+| Client loaders        | Auto-refetching    | Zero boilerplate   |
+| Nested layouts        | Background sync    | TypeScript ready   |
 
-## ✨ Highlights
+**Plus:** React 19 • Vite 6 • Tailwind v4 • TypeScript • Tests • Themes
 
-- **SPA mode** with React Router 7 Framework Mode (no SSR)
-- **File-based routing** with segment layouts and dynamic routes
-- **Client loaders** that pre-seed React Query cache; components read via `useQuery`/`useInfiniteQuery`
-- **Zustand** for ephemeral UI/app state only (no server entities)
-- **Centralized HTTP** clients and typed repositories (no side effects)
-- **Tailwind v4** theme-ready styles (light/dark)
+## 🏗️ How It Works
 
-## 📁 Folder Structure
-
-Routes and tests follow the rules in `.cursor/rules/front-end-rules.mdc`:
-
-```
-app/routes/
-├── home/
-│   ├── components/
-│   └── index.tsx             # Home route component
-├── notFound/
-│   ├── components/
-│   └── index.tsx             # Page not found route component
-├── [page-name]/
-│   │   └── $[path]           # Optional nested dynamic route
-│   ├── layout.tsx            # Optional layout route for this segment
-│   ├── index.tsx             # Main route component
-│   ├── components/           # Page-specific UI components
-│   ├── containers/           # Page-specific business logic containers
-│   ├── hooks/                # Page-specific custom hooks
-│   ├── services/             # Page-specific API services
-│   ├── constants/            # Page-specific constants and static data
-│   ├── repositories/         # Page-specific data provider definitions
-│   ├── types/                # Page-specific TypeScript definitions
-│   └── utils/                # Page-specific utility functions
-└── layout/
-tests/
-├── routes/[page-name]/
-└── shared/
+```mermaid
+graph LR
+    A[🧭 Route] --> B[📥 Client Loader]
+    B --> C[🔄 React Query]
+    C --> D[⚛️ Component]
+    D --> E[📦 Zustand]
+    E --> F[🎨 UI Update]
 ```
 
-## 🧭 React Router 7 (Framework Mode, SPA)
+**Data Flow:**
 
-### 🔧 SPA configuration
+1. **Route** loads → 2. **Client Loader** prefetches → 3. **React Query** caches → 4. **Component** renders → 5. **Zustand** manages UI state
 
-`react-router.config.ts`
+## 📂 Structure
+
+```
+app/
+├── routes.ts                    # 🧭 Route definitions
+├── routes/
+│   ├── layout.tsx              # 🏠 Root layout
+│   ├── home/
+│   │   ├── home.tsx            # / route
+│   │   └── components/
+│   ├── not-found/
+│   │   ├── not-found.tsx       # catch-all route
+│   │   └── components/
+│   ├── [module]/
+│   │   ├── layout.tsx          # 🎨 Module layout
+│   │   ├── list.tsx            # /module route
+│   │   ├── detail.tsx          # /module/:id route
+│   │   ├── components/         # ⚛️ UI components (flat, no subfolders)
+│   │   ├── containers/         # 🔗 Compose components + hooks
+│   │   ├── hooks/              # 🔄 React Query + business logic
+│   │   ├── stores/             # 📦 Zustand UI state (no server data)
+│   │   ├── repositories/       # 📡 Pure HTTP clients (no React)
+│   │   └── types/              # 🔷 TypeScript definitions
+│   └── shared/                 # 🤝 Cross-module resources
+└── styles/                     # 🎨 CSS & themes
+
+tests/routes/                   # 🧪 MUST mirror app/routes exactly
+```
+
+**Architecture Rules:**
+
+- 📁 **Module isolation** - each feature self-contained, promote to `shared/` when used across modules
+- 🚫 **Separation of concerns** - Components (UI) ≠ Containers (composition) ≠ Hooks (logic) ≠ Repositories (HTTP)
+- 🔄 **Data flow** - Repository → Hook → Container → Component
+- 📋 **Flat components** - single `/components` folder per module, no subfolders
+- 🧪 **Test mirroring** - `tests/routes/[module]/[file].test.tsx` exactly matches `app/routes/[module]/[file].tsx`
+
+## 🧭 Programmatic Routing Example
+
+**Define routes in code, not file structure** ✨
 
 ```ts
-import type { Config } from "@react-router/dev/config"
-
-export default {
-  // Enable SPA mode (no SSR)
-  ssr: false,
-} satisfies Config
-```
-
-### 🗺️ Route definitions (file-based)
-
-`app/routes.ts`
-
-```ts
-import {
-  index,
-  layout,
-  route,
-  type RouteConfig,
-} from "@react-router/dev/routes"
-
+// app/routes.ts
 export default [
+  route("/login", "routes/auth/login.tsx"),
   layout("routes/layout.tsx", [
-    index("routes/home/index.tsx"),
+    index("routes/home/home.tsx"), // → /
     route("/pokemon", "routes/pokemon/layout.tsx", [
-      index("routes/pokemon/index.tsx"),
-      route(":name", "routes/pokemon/$name/index.tsx"),
+      index("routes/pokemon/list.tsx"), // → /pokemon
+      route(":name", "routes/pokemon/detail.tsx"), // → /pokemon/pikachu
     ]),
-    route("*", "routes/notFound/index.tsx"),
+    route("*", "routes/not-found/not-found.tsx"),
   ]),
 ] satisfies RouteConfig
 ```
 
-### 🧱 App root providers
-
-`app/root.tsx`
+**Navigate programmatically:**
 
 ```tsx
-import { QueryClientProvider } from "@tanstack/react-query"
-import { I18nextProvider } from "react-i18next"
-import i18n from "./shared/utils/i18n"
-import { queryClient } from "./shared/utils/queryClient"
+import { useNavigate } from "react-router"
 
-export function Layout({ children }: { children: React.ReactNode }) {
+function PokemonCard({ pokemon }) {
+  const navigate = useNavigate()
+
   return (
-    <html lang={i18n.language}>
-      <body>
-        <QueryClientProvider client={queryClient}>
-          <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
-        </QueryClientProvider>
-      </body>
-    </html>
+    <div onClick={() => navigate(`/pokemon/${pokemon.name}`)}>
+      {pokemon.name}
+    </div>
   )
 }
 ```
 
-### 📦 List route with client loader + React Query + Zustand
+## 🔄 Smart Data Prefetching
 
-`app/routes/pokemon/index.tsx`
-
-```tsx
-import { QueryClient } from "@tanstack/react-query"
-import type { Route } from "./+types/index"
-import { PokemonExplorer } from "./containers/PokemonExplorer"
-import { pokemonRepository } from "./repositories/pokemon"
-import { usePokemonUiStore } from "./state/uiStore"
-
-const keys = {
-  listInfinite: (limit: number) =>
-    ["pokemon", "list", "infinite", limit] as const,
-}
-
-export const clientLoader =
-  (queryClient: QueryClient) => async (_args: Route.ClientLoaderArgs) => {
-    const limit = usePokemonUiStore.getState().listLimit
-    await queryClient.prefetchInfiniteQuery({
-      queryKey: keys.listInfinite(limit),
-      initialPageParam: 0,
-      queryFn: ({ pageParam }) =>
-        pokemonRepository.fetchPokemonListPage({ limit, offset: pageParam }),
-      getNextPageParam: (lastPage) => lastPage.nextOffset ?? undefined,
-      pages: 1,
-    })
-    return null
-  }
-
-export default function PokemonRoute() {
-  return <PokemonExplorer />
-}
-```
-
-### 🧭 Dynamic route with params + client loader prefetch
-
-`app/routes/pokemon/$name/index.tsx`
+**Client loaders + React Query = Instant UX** ⚡️
 
 ```tsx
-import { QueryClient, useQuery } from "@tanstack/react-query"
-import { useParams } from "react-router"
-import type { Route } from "./+types/index"
-import { pokemonRepository } from "../repositories/pokemon"
-
-const keys = { byName: (name: string) => ["pokemon", "detail", name] as const }
-
+// Route prefetches before rendering
 export const clientLoader =
   (queryClient: QueryClient) =>
   async ({ params }: Route.ClientLoaderArgs) => {
-    const name = params.name?.toString() ?? ""
+    const name = params.name ?? ""
     if (!name) throw new Response("Missing pokemon name", { status: 400 })
+
     await queryClient.prefetchQuery({
-      queryKey: keys.byName(name),
+      queryKey: ["pokemon", name],
       queryFn: () => pokemonRepository.fetchPokemonByName(name),
     })
     return null
   }
 
-export default function PokemonDetailsRoute() {
-  const { name = "" } = useParams<{ name: string }>()
+// Component gets cached data instantly
+export default function PokemonDetailRoute() {
+  const { name } = useParams()
   const { data } = useQuery({
-    queryKey: keys.byName(name),
+    queryKey: ["pokemon", name],
     queryFn: () => pokemonRepository.fetchPokemonByName(name),
-    enabled: Boolean(name),
   })
-  return data ? <div>{data.name}</div> : null
+  return <PokemonDetails data={data} />
 }
 ```
 
-### 🧩 Segment layout
+## 🔄 React Query Pattern
 
-`app/routes/layout.tsx`
+**Repository → Hook → Component** 🎯
+
+```ts
+// 📡 Repository (pure HTTP)
+const pokemonRepository = {
+  fetchList: ({ limit, offset }) =>
+    pokemonHttp.get("/pokemon", { params: { limit, offset } }),
+  fetchByName: (name) => pokemonHttp.get(`/pokemon/${name}`),
+}
+```
 
 ```tsx
-import { Outlet } from "react-router"
-import { SiteHeader } from "../shared/components/SiteHeader"
+// 🪝 Custom Hook (React Query)
+export function usePokemonInfiniteQuery() {
+  return useInfiniteQuery({
+    queryKey: ["pokemon", "list"],
+    queryFn: ({ pageParam = 0 }) =>
+      pokemonRepository.fetchList({ limit: 20, offset: pageParam }),
+    getNextPageParam: (lastPage) => lastPage.nextOffset,
+  })
+}
+```
 
-export default function AppLayout() {
+```tsx
+// ⚛️ Component (consume hook)
+function PokemonList() {
+  const { data, fetchNextPage, hasNextPage } = usePokemonInfiniteQuery()
   return (
-    <>
-      <SiteHeader />
-      <main className="container mx-auto p-4">
-        <Outlet />
-      </main>
-    </>
+    <InfiniteScroll onLoadMore={fetchNextPage} hasMore={hasNextPage}>
+      {data?.pages.map((page) =>
+        page.items.map((pokemon) => (
+          <PokemonCard key={pokemon.name} {...pokemon} />
+        )),
+      )}
+    </InfiniteScroll>
   )
 }
 ```
 
-### 🛡️ Error boundaries
+## 📦 Zustand UI State
 
-Each route (or layout) can export an `ErrorBoundary`.
-
-```tsx
-import type { Route } from "./+types/index"
-import { isRouteErrorResponse } from "react-router"
-
-export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let details = "Something went wrong."
-  if (isRouteErrorResponse(error)) details = error.statusText || details
-  else if (error instanceof Error && error.message) details = error.message
-  return <div role="alert">{details}</div>
-}
-```
-
-## 🔌 Data Layer & HTTP
-
-- Endpoints and HTTP clients are centralized and reused across features.
-
-`app/shared/constants/endpoint.ts`
+**Simple stores for UI stuff** 🎨
 
 ```ts
-export const POKEMON_API_BASE_URL = "https://pokeapi.co/api/v2"
-```
+export const usePokemonUiStore = create((set) => ({
+  searchQuery: "",
+  viewMode: "grid",
+  selectedTypes: [],
 
-`app/shared/utils/http.ts`
-
-```ts
-import axios, { type AxiosInstance } from "axios"
-import { POKEMON_API_BASE_URL } from "../constants/endpoint"
-
-export function createHttpClient(baseURL: string): AxiosInstance {
-  return axios.create({
-    baseURL,
-    timeout: 10000,
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-  })
-}
-
-export const pokemonHttp: AxiosInstance = createHttpClient(POKEMON_API_BASE_URL)
-```
-
-`app/routes/pokemon/repositories/pokemon.ts`
-
-```ts
-import { pokemonHttp } from "~/shared/utils/http"
-import { toHttpError } from "~/shared/utils/httpError"
-
-export interface PokemonListPageResult {
-  items: { name: string }[]
-  nextOffset: number | null
-}
-
-async function fetchPokemonListPage(params: {
-  limit: number
-  offset: number
-}): Promise<PokemonListPageResult> {
-  const { limit, offset } = params
-  try {
-    const { data } = await pokemonHttp.get<{
-      results: { name: string }[]
-      next?: string | null
-    }>("/pokemon", { params: { limit, offset } })
-    let nextOffset: number | null = null
-    if (data?.next) {
-      try {
-        const nextUrl = new URL(data.next)
-        const offsetParam = nextUrl.searchParams.get("offset")
-        nextOffset = offsetParam ? Number(offsetParam) : null
-        if (Number.isNaN(nextOffset)) nextOffset = null
-      } catch {
-        nextOffset = null
-      }
-    }
-    return { items: data.results ?? [], nextOffset }
-  } catch (error) {
-    throw toHttpError(error)
-  }
-}
-
-async function fetchPokemonByName(name: string) {
-  try {
-    const { data } = await pokemonHttp.get(
-      `/pokemon/${encodeURIComponent(name.toLowerCase())}`,
-    )
-    return { id: data.id, name: data.name }
-  } catch (error) {
-    throw toHttpError(error)
-  }
-}
-
-export const pokemonRepository = { fetchPokemonListPage, fetchPokemonByName }
-```
-
-## 🗂️ Zustand (UI state)
-
-`app/routes/pokemon/state/uiStore.ts`
-
-```ts
-import { create } from "zustand"
-
-export interface PokemonUiState {
-  listLimit: number
-  selectedName: string
-  setListLimit: (limit: number) => void
-  setSelectedName: (name: string) => void
-}
-
-export const usePokemonUiStore = create<PokemonUiState>((set) => ({
-  listLimit: 12,
-  selectedName: "",
-  setListLimit: (limit: number) => set({ listLimit: limit }),
-  setSelectedName: (name: string) => set({ selectedName: name }),
+  setSearchQuery: (query) => set({ searchQuery: query }),
+  toggleViewMode: () =>
+    set((state) => ({ viewMode: state.viewMode === "grid" ? "list" : "grid" })),
+  setSelectedTypes: (types) => set({ selectedTypes: types }),
 }))
 ```
 
-## 🧪 Getting Started
-
-1. Install deps
+## 🚀 Get Started
 
 ```bash
-npm install
+npm install && npm run dev
+# → http://localhost:5173 ✨
 ```
 
-2. Start dev server
+## 🛠️ Scripts
+
+| Command         | What it does          |
+| --------------- | --------------------- |
+| `npm run dev`   | 🔥 Start dev server   |
+| `npm run build` | 📦 Production build   |
+| `npm run test`  | 🧪 Run tests          |
+| `npm run lint`  | 🔍 Check code quality |
+
+## 🧪 Testing
+
+**Structure mirrors routes** → `tests/routes/` ↔ `app/routes/`
 
 ```bash
-npm run dev
+npm run test:watch     # 👀 Watch mode
+npm run test:coverage  # 📊 Coverage report
 ```
-
-3. Build / Preview
-
-```bash
-npm run build && npm run start
-```
-
-## 🧭 Useful Scripts
-
-### Development
-
-- `dev` — start dev server with HMR
-- `build` — production build
-- `start` — preview production build
-
-### Code Quality
-
-- `typecheck` — TypeScript diagnostics
-- `lint` — ESLint check with error reporting
-- `lint:check` — ESLint check with zero warnings policy
-- `lint:fix` — ESLint with auto-fix
-- `quality` — run lint + typecheck + format checks
-- `quality:fix` — run lint:fix + format auto-fix
-
-### Testing
-
-- `test` — run unit tests (Vitest + RTL)
-- `test:watch` — run tests in watch mode
-- `test:coverage` — run tests with coverage report
 
 ---
 
-Built with ❤️ for fast, maintainable SPAs.
+<div align="center">
+
+### 🎯 **React Router 7** + **React Query** + **Zustand**
+
+_The perfect React SPA trinity_ ⚡️
+
+**[🧭 Programmatic Routing](#-programmatic-routing-example)** • **[🔄 Smart Caching](#-smart-data-prefetching)** • **[📦 Simple State](#-zustand-ui-state)**
+
+</div>
