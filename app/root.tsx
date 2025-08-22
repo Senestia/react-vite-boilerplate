@@ -1,3 +1,4 @@
+import { QueryClientProvider } from "@tanstack/react-query"
 import { I18nextProvider, useTranslation } from "react-i18next"
 import {
   isRouteErrorResponse,
@@ -11,6 +12,7 @@ import {
 import type { Route } from "./+types/root"
 import ErrorView from "./shared/components/ErrorView"
 import i18n from "./shared/utils/i18n"
+import { queryClient } from "./shared/utils/queryClient"
 import "./styles/app.css"
 
 export const meta: Route.MetaFunction = () => [
@@ -40,7 +42,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+        <QueryClientProvider client={queryClient}>
+          <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+        </QueryClientProvider>
         <ScrollRestoration />
         <Scripts />
       </body>

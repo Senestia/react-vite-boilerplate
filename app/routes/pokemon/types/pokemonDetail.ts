@@ -5,4 +5,7 @@ export interface PokemonDetail {
   weight: number
   imageUrl: string | null
   types: string[]
+  baseExperience?: number
+  abilities?: string[]
+  stats?: { name: string; value: number }[]
 }

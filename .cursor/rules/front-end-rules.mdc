@@ -5,125 +5,170 @@ alwaysApply: false
 
 ## Purpose
 
-Concise, enforceable rules for building front-end features in this repo.
-
-## Tech Stack & Mode
-
-- Vite + React Router v7 (Framework Mode, no SSR) + Tailwind CSS v4 + TypeScript
-- Follow React Router v7 best practices; use file-based routing under `app/`
+Concise, enforceable rules for building front-end features in this React Router v7 + Vite + Tailwind + TypeScript codebase.
 
 ## Structure & Organization
 
-- Route entry per folder: `index.tsx`
-- Segment layout per folder: `layout.tsx` (presentational only; one per segment)
-- Page folders may include: `components/`, `containers/`, `hooks/`, `services/`, `constants/`, `repositories/`, `types/`, `utils/`
-- Shared, reusable assets live in `app/shared/`
-- Tests live under `tests/`, mirroring feature structure
+- **Module-based**: Group routes by domain/feature area
+- **Route files**: Named by URL path, not \_index.tsx
+- **Semantic dynamic routes**: Use meaningful names (detail.tsx, edit.tsx, settings.tsx)
+- **Module layouts**: layout.tsx wraps all routes within a module
 
 ```
 app/routes/
-├── home/
-│   ├── components/
-│   └── index.tsx             # Home route component
-├── notFound/
-│   ├── components/
-│   └── index.tsx             # Page not found route component
-├── [page-name]/
-│   │   └── $[path]           # Optional nested dynamic route
-│   ├── layout.tsx            # Optional layout route for this segment
-│   ├── index.tsx             # Main route component
-│   ├── components/           # Page-specific UI components
-│   ├── containers/           # Page-specific business logic containers
-│   ├── hooks/                # Page-specific custom hooks
-│   ├── services/             # Page-specific API services
-│   ├── constants/            # Page-specific constants and static data
-│   ├── repositories/         # Page-specific data provider definitions
-│   ├── types/                # Page-specific TypeScript definitions
-│   └── utils/                # Page-specific utility functions
-└── layout/
+├── [feature-module]/                   # Domain/feature-based grouping
+│   ├── layout.tsx                      # Module layout (optional)
+│   ├── [route-name].tsx               # Route files named by URL segment
+│   ├── [dynamic-route].tsx            # Semantic names for dynamic routes
+│   ├── components/                     # Module-specific components only
+│   ├── containers/                     # Module-specific containers only
+│   ├── hooks/                          # Module-specific hooks only
+│   ├── types/                          # Module-specific types only
+│   ├── repositories/                   # Module-specific data access (optional)
+│   └── stores/                         # Module-specific state (optional)
+└── shared/                             # Cross-module utilities and components
+
 tests/
-├── routes/[page-name]/
-└── shared/
+├── routes/                             # MUST mirror app/routes structure exactly
+│   └── [feature-module]/
+└── shared/                             # Test utilities and shared component tests
 ```
 
-## Repositories & HTTP
+## Code Architecture
 
-- Repositories are pure data providers (no React). Return typed models and propagate errors. No side effects
-- Place repositories under `app/routes/[page]/repositories/` or `app/shared/repositories/` (if shared)
-- Centralize HTTP clients and endpoints in `app/shared/utils/` and `app/shared/constants/`. Do not create feature-local Axios instances
+**Components vs Containers vs Hooks**
 
-## Barrels (index.ts)
-
-- Use only when a folder has 3+ related peers or to expose a module’s public API
-- One barrel per folder; export-only (no side effects); no chained re-exports
-- Do not re-export across route segment boundaries
-- No barrels in `components/` or `containers/`
-- Inside a folder with a barrel, source files must import siblings directly (never from the barrel) and must not re-export themselves
-
-### Types organization
-
-- Split type definitions into focused files by model (e.g., `pokemonListItem.ts`, `pokemonDetail.ts`)
-- Add a local barrel in the `types/` folder to expose the public types API
-- Import from the folder barrel within the route segment (e.g., `import type { PokemonDetail } from "../types"`)
-
-## Naming
-
-- Components: PascalCase (e.g., `UserProfile.tsx`)
-- Hooks: camelCase starting with `use` (e.g., `useUserData.ts`)
-- Services: camelCase ending with `Service` (e.g., `userService.ts`)
-- Barrels are always named `index.ts`
-
-## Components vs Containers
-
-- Components: presentational only (no data fetching/business logic)
-- Containers: state, effects, API calls; compose components
+- **Components**: presentational only (no fetching, minimal state)
+- **Containers**: compose components + hooks; handle UI concerns (refs, observers)
+- **Custom Hooks**: business logic, state management, side effects
 - Never mix fetching and UI in the same file
+- Extract all React Query logic into custom hooks
+- Create reusable utility hooks for common patterns (intersection observers, form validation, auth guards)
+- Co-locate hooks in `hooks/` folder; use barrels for 3+ related hooks
 
-## Code Quality
+**Component Organization**
 
-- Small, focused files (components ≤ 150 lines; any file ≤ 500 lines)
-- Destructure props/state; prefer modern ES features and async/await
-- Strict TypeScript; no `any`
-- DRY: extract shared logic into hooks/utils/shared components
-- Extract oversized components into smaller subcomponents. Keep extracted parts within the current route scope; if reused by sibling pages/components, move to the parent route segment; if reused across features, promote to `app/shared/components/`
+- **Single `/components` folder per module**: ALL components within a module must be in ONE `/components` folder
+- **No component sub-folders**: Never create `detail-components/`, `list-components/`, `form-components/`, or similar subdivisions
+- **Flat structure**: Keep components flat within `/components` - use descriptive names instead of nested folders
+- **Module isolation**: Components in `/components` are module-specific; promote to `app/shared/components/` if used across modules
 
-## React Router v7
+**Naming Conventions**
 
-- File-based routing by default
-- Loaders: only for URL-driven or must-block-first-paint data, or when needed for  handle errors
-- Actions: for form submissions/mutations
-- Lazy-load routes by default; use layout routes for guards
+- **Routes**: kebab-case (`login.tsx`, `forgot-password.tsx`)
+- **Layout**: kebab-case with `layout` suffix (`layout.tsx`, `forgot-layout.tsx`), or root layout using `layout.tsx`
+- **Dynamic Routes**: `detail.tsx`, `edit.tsx`, `settings.tsx`, `dashboard.tsx`
+- **Components**: PascalCase (`UserProfile.tsx`)
+- **Hooks**: camelCase with `use` prefix (`useUserData.ts`)
+- **Modules**: kebab-case folders (`auth/`, `user-profile/`)
 
-## Data Loading
+**Barrels & Types**
 
-- Non-blocking/interactive data: fetch in containers/hooks after render via repositories
-- Provide `ErrorBoundary` for failures
+- Use barrels only for 3+ related files or public APIs; no chained re-exports
+- No barrels in `components/` or `containers/`
+- Split types into focused files (`pokemonDetail.ts`, `pokemonListItem.ts`)
+- Add barrel in `types/` folder; import from barrel within route segment
 
-## Styling (Tailwind v4)
+## Data Management
 
-- Prefer utilities over custom CSS; create reusable variants
-- Mobile-first; use semantic HTML; avoid unnecessary wrapper elements
-- Organize CSS in `app.css`, `components.css`, `utilities.css`
+**Repositories & HTTP**
 
-## React Practices
+- Pure data providers (no React); return typed models; propagate errors
+- Place in `app/routes/[page]/repositories/` or `app/shared/repositories/`
+- Centralize HTTP clients in `app/shared/utils/` and endpoints in `app/shared/constants/`
 
-- Functional components with explicit prop interfaces; use default parameters instead of `defaultProps`
-- Memoize (`React.memo`, `useMemo`, `useCallback`) when it measurably prevents re-renders
-- Lists require stable, unique `key` props
+**React Query**
 
-## AI-Friendly Patterns
+- Extract React Query logic into custom hooks; never use directly in components
+- Define stable query keys: `const keys = { list: (limit) => ["pokemon", "list", limit] }`
+- Handle errors via `ErrorBoundary`; surface loading/empty states in components
 
-- Descriptive names; explicit types for public APIs; JSDoc for complex/public modules
-- Single-purpose files; predictable folder layout; explicit exports and dependencies
+**Zustand State**
 
-## Testing
+- For ephemeral UI state only (filters, toggles); use React Query for server data
+- Co-locate stores in `stores/` folders; promote to `app/shared/stores/` if shared across routes
+- Plain modules (no React imports); minimal serializable state; small actions
 
-- Tests under `tests/`, mirroring features; name files `*.test.tsx` or `*.spec.tsx`
-- Use React Testing Library; test behavior; mock external deps only
-- Aim for ≥ 80% coverage on critical paths; use factories/fixtures
+**Client Loaders**
 
-## Performance & Monitoring
+- Pre-seed React Query cache; return `null`; curry with `QueryClient`
+- Read Zustand via `store.getState()` only; validate params; throw `Response` for errors
 
-- Code-split at route level by default; split large components when helpful
-- Optimize assets; leverage browser caching; monitor bundle sizes
-- Track Core Web Vitals; enable error tracking; maintain a performance budget; run periodic perf/a11y audits
+```ts
+export const clientLoader =
+  (queryClient: QueryClient) =>
+  async ({ params }) => {
+    const id = params.id ?? ""
+    if (!id) throw new Response("Missing id", { status: 400 })
+    await queryClient.prefetchQuery({
+      queryKey: ["entity", "detail", id],
+      queryFn: () => repository.fetchById(id),
+    })
+    return null
+  }
+```
+
+## Development Practices
+
+**Shared vs Module-Specific**
+
+- **Promote to `app/shared/`**: Files used by 2+ modules
+- **Keep module-specific**: Files used only within their module
+- **Refactor trigger**: When importing across modules - move to shared
+
+**Code Quality**
+
+- Small files: components ≤150 lines, any file ≤500 lines
+- Destructure props; use modern ES features; strict TypeScript (no `any`)
+- Extract shared logic; promote reusable components to appropriate scope
+- Single-purpose files; descriptive names; explicit types for public APIs
+
+**React Patterns**
+
+- Functional components with explicit prop interfaces; default parameters over `defaultProps`
+- Memoize only when measurably preventing re-renders
+- Stable, unique `key` props for lists
+
+## Routing & Performance
+
+**React Router v7**
+
+- Programmatic routing via `app/routes.ts`; loaders for URL-driven/blocking data only
+- Actions for form submissions; lazy-load routes; layout routes for guards
+- Use `route()`, `layout()`, and `index()` functions to define routes explicitly
+
+**Optimization**
+
+- Code-split at route level; optimize assets; monitor bundle sizes
+- Track Core Web Vitals; maintain performance budget
+
+## Styling & Testing
+
+**Tailwind v4**
+
+- Utilities over custom CSS; mobile-first; semantic HTML
+- Organize in `app.css`, `components.css`, `utilities.css`
+
+### Testing & Performance
+
+- Tests under `tests/` mirroring features; use React Testing Library
+  **Test Structure Requirements:**
+
+- **MUST mirror route structure exactly** - `tests/routes/` mirrors `app/routes/`
+- **Test naming matches route naming** - `login.test.tsx` for `login.tsx`, `detail.test.tsx` for `detail.tsx`
+- **Module boundaries respected** - each route module has corresponding test module
+- **Component/container/hook tests** - place in same relative folders as source files
+
+**Test Organization:**
+
+- Route tests: `tests/routes/[module]/[route-name].test.tsx`
+- Component tests: `tests/routes/[module]/components/[Component].test.tsx`
+- Container tests: `tests/routes/[module]/containers/[Container].test.tsx`
+- Hook tests: `tests/routes/[module]/hooks/[hookName].test.ts`
+- Shared tests: `tests/shared/[category]/[item].test.tsx`
+
+**Performance:**
+
+- Use React Testing Library for all component tests
+- Code-split at route level; monitor bundle sizes
+- Track Core Web Vitals; maintain performance budget
